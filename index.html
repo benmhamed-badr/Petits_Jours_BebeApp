@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Petits Jours</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/index.min.js"></script>
+    <!-- Chart.js pour les statistiques -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Confetti pour les animations UX -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            MobileDragDrop.polyfill({ holdToDrag: 100 }); 
+        });
+    </script>
+    <style>
+        :root {
+            --primary: #2F75B5;
+            --secondary: #2C3E50;
+            --bg-color: #F4F7F6;
+            --card-bg: #FFFFFF;
+            --border: #E0E0E0;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --cat1: #EAEAEA;
+            --cat2: #D9E1F2;
+            --cat3: #FCE4D6;
+            --success: #2ECC71;
+            --danger: #E74C3C;
+            --input-bg: #F9F9F9;
+        }
+
+        body.dark-mode {
+            --primary: #3498DB;
+            --secondary: #1A252F;
+            --bg-color: #121212;
+            --card-bg: #1E1E1E;
+            --border: #333333;
+            --text-main: #E0E0E0;
+            --text-muted: #AAAAAA;
+            --cat1: #2C3E50;
+            --cat2: #2980B9;
+            --cat3: #D35400;
+            --input-bg: #2C2C2C;
+            --success: #27AE60;
+        }
+        
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            padding-top: calc(var(--header-h) + 50px);
+            padding-bottom: 70px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        :root {
+            --header-h: 106px;
+        }
+
+        .app-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transform: translateY(0);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .app-header.header-hidden {
+            transform: translateY(calc(-1 * var(--header-h))); 
+        }
+
+        .header-top { display: flex; justify-content: space-between; align-items: center; }
+        .header-title h1 { 
+            margin: 0; 
+            font-size: 21px; 
+            font-family: 'Fredoka', 'Outfit', sans-serif; 
+            font-weight: 700; 
+            letter-spacing: 0.8px;
+            background: linear-gradient(135deg, #FFFFFF 0%, #E0F2FE 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+        .header-title p { margin: 2px 0 0 0; font-size: 10px; opacity: 0.9; }
+        
+        .header-controls { display: flex; gap: 8px; align-items: center; }
+        .ctrl-btn { background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .lang-select { background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 5px; padding: 4px; font-size: 11px; outline: none; }
+        .lang-select option { color: black; }
+
+        .budget-container { background: rgba(0,0,0,0.15); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+        .budget-texts { display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; margin-bottom: 3px; }
+        .budget-bar-bg { width: 100%; height: 6px; background: rgba(255,255,255,0.3); border-radius: 3px; overflow: hidden; }
+        .budget-bar-fill { height: 100%; background: #2ECC71; width: 0%; transition: width 0.4s, background-color 0.3s; }
+        .budget-over { background: #E74C3C !important; }
+
+        .tabs-container {
+            display: flex;
+            overflow-x: auto;
+            background: var(--card-bg);
+            padding: 8px 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: fixed;
+            top: var(--header-h); 
+            left: 0;
+            right: 0;
+            z-index: 99;
+            scrollbar-width: none;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s;
+        }
+        .tabs-container.header-hidden {
+            transform: translateY(calc(-1 * var(--header-h))); 
+        }
+        .tabs-container::-webkit-scrollbar { display: none; }
+        
+        .tab {
+            padding: 6px 14px;
+            margin-right: 8px;
+            border-radius: 18px;
+            background: var(--input-bg);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 12px;
+            white-space: nowrap;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .tab.active { background: rgba(47, 117, 181, 0.1); color: var(--primary); border-color: var(--primary); }
+        .tab i.edit-store { font-size: 11px; opacity: 0.6; padding: 4px; }
+        .tab.active i.edit-store { opacity: 1; color: var(--primary); }
+        .tab-add { background: transparent; border: 2px dashed var(--border); }
+        .tab-summary { background: rgba(243, 156, 18, 0.1); color: #D35400; border: 2px solid rgba(243, 156, 18, 0.3); }
+
+        /* Search Wrapper */
+        .search-wrapper { margin: 15px auto 0 auto; width: calc(100% - 30px); position: relative; max-width: 800px; display: flex; align-items: center; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .search-wrapper i { position: absolute; left: 15px; color: var(--text-muted); }
+        .search-wrapper input { width: 100%; padding: 10px 10px 10px 40px; border-radius: 10px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: border-color 0.3s; }
+        .search-wrapper input:focus { border-color: var(--primary); }
+
+        /* Filters Wrapper */
+        .filters-wrapper { display: flex; gap: 8px; margin: 10px auto 0 auto; max-width: 800px; padding: 0 15px; overflow-x: auto; scrollbar-width: none; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .filters-wrapper::-webkit-scrollbar { display: none; }
+        .filter-btn { background: var(--input-bg); border: 1px solid var(--border); border-radius: 15px; padding: 6px 14px; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: all 0.2s ease; }
+        .filter-btn.active { background: rgba(47, 117, 181, 0.1); color: var(--primary); border-color: var(--primary); }
+
+        .content { padding: 15px; max-width: 800px; margin: 0 auto; }
+
+        .category-header {
+            font-weight: bold;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 20px 0 10px 0;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            background-color: var(--border);
+            color: var(--text-main);
+        }
+        .cat-v { background-color: var(--cat1); }
+        .cat-c { background-color: var(--cat2); }
+        .cat-t { background-color: var(--cat3); }
+        .cat-custom { background-color: rgba(46, 204, 113, 0.2); }
+        
+        .btn-add-item { background: rgba(0,0,0,0.1); border: none; border-radius: 5px; padding: 5px 10px; font-size: 13px; font-weight: bold; cursor: pointer; color: inherit; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
+        .btn-add-item:hover { background: rgba(0,0,0,0.2); }
+
+        .card { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid var(--border); transition: background 0.3s, border 0.3s, opacity 0.3s; position: relative; display: flex; flex-direction: column; gap: 12px; }
+        .card.is-bought { opacity: 0.65; border-left: 4px solid var(--success); }
+        
+        .card-row-top { display: flex; align-items: center; gap: 10px; }
+        .card-row-mid { display: flex; gap: 12px; align-items: flex-start; }
+        .card-row-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px dashed var(--border); }
+        .mid-inputs { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        
+        .bought-check {
+            appearance: none; width: 24px; height: 24px; border: 2px solid var(--border); border-radius: 6px; outline: none; cursor: pointer;
+            position: relative; display: flex; justify-content: center; align-items: center; flex-shrink: 0; background: var(--input-bg);
+        }
+        .bought-check:checked { background: var(--success); border-color: var(--success); }
+        .bought-check:checked::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: white; font-size: 14px; }
+
+        .item-img-wrapper { position: relative; flex-shrink: 0; }
+        .item-img-box { width: 55px; height: 55px; border-radius: 8px; background: var(--input-bg); display: flex; justify-content: center; align-items: center; overflow: hidden; cursor: pointer; border: 1px dashed var(--border); transition: 0.2s; }
+        .item-img-box:active { transform: scale(0.95); }
+        .item-img-box img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .remove-img-btn { position: absolute; top: -6px; right: -6px; background: var(--danger); color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; justify-content: center; align-items: center; font-size: 12px; cursor: pointer; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        .preview-img-btn { position: absolute; bottom: -6px; right: -6px; background: var(--primary); color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; justify-content: center; align-items: center; font-size: 11px; cursor: pointer; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+
+        .name-wrapper { display: flex; flex: 1; align-items: center; gap: 8px; }
+        
+        /* Priorité (Star) & Valise */
+        .btn-valise { font-size: 18px; color: var(--border); cursor: pointer; transition: 0.2s; }
+        .btn-valise:hover { transform: scale(1.1); }
+        .btn-valise.active { color: #1ABC9C; text-shadow: 0 0 5px rgba(26, 188, 156, 0.4); }
+        .btn-priority { font-size: 18px; color: var(--border); cursor: pointer; transition: 0.2s; }
+        .btn-priority:hover { transform: scale(1.1); }
+        .btn-priority.active { color: #F1C40F; text-shadow: 0 0 5px rgba(241, 196, 15, 0.4); }
+
+        .btn-delete-item { color: var(--danger); opacity: 0.5; cursor: pointer; padding: 5px; transition: 0.2s; }
+        .btn-delete-item:hover { opacity: 1; }
+
+        input.edit-name { flex: 1; font-size: 15px; font-weight: 700; color: var(--primary); border: none; background: transparent; border-bottom: 1px dashed var(--border); padding: 4px 0; width: 100%; }
+        input.edit-name:focus { outline: none; border-bottom-style: solid; }
+        .card.is-bought input.edit-name { text-decoration: line-through; color: var(--text-muted); }
+
+        input.edit-det { width: 80px; font-size: 12px; color: var(--text-muted); border: none; background: var(--input-bg); border-radius: 4px; padding: 4px 8px; text-align: right; }
+        
+        input.edit-note { width: 100%; font-size: 12px; color: var(--text-main); border: 1px solid var(--border); background: var(--input-bg); border-radius: 6px; padding: 6px 10px; margin-top: 5px; outline: none; }
+        input.edit-note:focus { border-color: var(--primary); }
+
+        .price-input-container { display: flex; align-items: center; background: var(--input-bg); border: 2px solid var(--border); border-radius: 8px; padding: 4px 10px; transition: all 0.3s; }
+        .price-input-container:focus-within { border-color: var(--primary); }
+        .price-input-container input { border: none; background: transparent; font-size: 16px; font-weight: bold; color: var(--text-main); width: 85px; text-align: right; padding: 4px; outline: none; }
+        .price-input-container span { color: var(--text-muted); font-weight: bold; margin-left: 5px; font-size: 14px; }
+        
+        /* WhatsApp Bouton */
+        .btn-whatsapp { background: #25D366; color: white; border: none; border-radius: 8px; width: 34px; height: 34px; display: flex; justify-content: center; align-items: center; font-size: 18px; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .btn-whatsapp:active { transform: scale(0.95); }
+
+        .summary-container { overflow-x: auto; background: var(--card-bg); border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px;}
+        table.summary-table { width: 100%; border-collapse: collapse; font-size: 13px; color: var(--text-main); }
+        .summary-table th, .summary-table td { padding: 10px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); text-align: left; vertical-align: middle; }
+        .summary-table th { background: var(--primary); color: white; position: sticky; top: 0; }
+        .summary-table td:first-child { font-weight: bold; background: var(--card-bg); position: sticky; left: 0; z-index: 2; }
+        .best-price { background-color: rgba(46, 204, 113, 0.15) !important; color: var(--success); font-weight: bold; }
+        .bought-badge { display: inline-block; background: var(--success); color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle;}
+
+        /* Chart Wrapper */
+        .chart-wrapper { max-width: 400px; margin: 0 auto 20px auto; padding: 15px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+
+        .total-footer { position: fixed; bottom: 0; left: 0; right: 0; background: var(--secondary); color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 15px rgba(0,0,0,0.15); z-index: 1000; border-top-left-radius: 20px; border-top-right-radius: 20px; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); transition: background 0.3s; }
+        .total-label { font-size: 13px; opacity: 0.8; }
+        .total-value { font-size: 20px; font-weight: bold; color: var(--success); }
+
+        .btn { padding: 12px 20px; border-radius: 8px; border: none; font-size: 14px; font-weight: bold; cursor: pointer; margin: 5px; color: white; transition: 0.2s; }
+        .btn-success { background: #27AE60; color: white; margin-top: 15px;}
+        .btn-primary { background: var(--primary); color: white; width: 100%; max-width: 400px; margin-top: 20px;}
+
+        .hidden { display: none !important; }
+        
+        .signature { text-align: center; color: var(--text-muted); font-size: 10px; margin: 50px 0 -10px 0; font-weight: 500; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 9999; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.3s; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content { background: var(--card-bg); width: 90%; max-width: 400px; border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: translateY(20px); transition: 0.3s; display: flex; flex-direction: column; gap: 15px; }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+        .modal-title { margin: 0; font-size: 18px; color: var(--text-main); text-align: center; }
+        .modal-body { color: var(--text-muted); font-size: 14px; text-align: center; }
+        
+        .sheet-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; }
+        .sheet-content-wrapper { position: fixed; bottom: 0; left: 0; right: 0; max-width: 500px; margin: 0 auto; background: var(--card-bg); padding: 25px 20px 30px 20px; border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 10000; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .sheet-btn { width: 100%; padding: 15px; margin-bottom: 12px; border-radius: 12px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .sheet-btn-primary { background: var(--primary); color: white; }
+        .sheet-btn-success { background: var(--success); color: white; }
+        .sheet-btn-cancel { background: var(--input-bg); color: var(--text-main); margin-top: 15px; margin-bottom: 0; border: 1px solid var(--border); }
+
+        
+        body.is-summary { padding-bottom: 25px; }
+        body.is-summary .signature { margin: 50px 0 0px 0; }
+
+        @media screen {
+            .pdf-only { display: none !important; }
+        }
+        @media print {
+            .pdf-only { display: flex !important; flex-direction: column; align-items: center; margin-top: 8px; gap: 4px; }
+            .pdf-only img { width: 45px; height: 45px; border-radius: 4px; object-fit: cover; border: 1px solid #CCC; }
+            .pdf-only div { max-width: 80px; word-wrap: break-word; }
+            body * { visibility: hidden; }
+            #summary-content, #summary-content * { visibility: visible; }
+            #summary-content { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; }
+            .btn, .signature, .app-header, .tabs-container, .total-footer, .modal-overlay, #image-action-sheet, .search-wrapper, .filters-wrapper { display: none !important; }
+            .summary-container { box-shadow: none; border: 1px solid #CCC; }
+            .chart-wrapper { box-shadow: none; border: 1px solid #CCC; break-inside: avoid; }
+        }
+        
+        /* --- Styles pour le Drag & Drop et Boutons --- */
+        .btn-header-group { display: flex; gap: 8px; }
+        .btn-icon-only { background: rgba(0,0,0,0.1); border: none; border-radius: 6px; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; font-size: 14px; cursor: pointer; color: inherit; transition: 0.2s; }
+        .btn-icon-only:hover { background: rgba(0,0,0,0.2); }
+        
+        .card.draggable { border: 2px dashed var(--primary); }
+        .drag-over { border-top: 3px solid var(--primary) !important; transform: scale(1.01); transition: 0.1s; }
+        
+        .drag-handle { 
+            display:flex; 
+            align-items:center; 
+            color:var(--primary); 
+            padding: 10px 15px 10px 5px; 
+            cursor:grab; 
+            font-size:18px; 
+            touch-action: none !important; 
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        .drag-handle:active { cursor: grabbing; }
+    
+        #custom-dialog-overlay { align-items: flex-start; justify-content: center; padding-top: 15vh; }
+        .dialog-box { background: var(--card-bg); width: 85%; max-width: 350px; border-radius: 20px; padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); text-align: center; transform: scale(0.9); opacity: 0; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; gap: 18px; border: 1px solid var(--border); }
+        #custom-dialog-overlay.active .dialog-box { transform: scale(1); opacity: 1; }
+        .dialog-msg { font-size: 16px; color: var(--text-main); font-weight: 700; line-height: 1.4; }
+        .dialog-input { width: 100%; padding: 12px 15px; border: 2px solid var(--border); border-radius: 12px; font-size: 16px; background: var(--input-bg); color: var(--text-main); outline: none; transition: border 0.3s; box-sizing: border-box; font-family: inherit;}
+        .dialog-input:focus { border-color: var(--primary); }
+        .dialog-btns { display: flex; gap: 12px; justify-content: center; margin-top: 5px; }
+        .dialog-btn { flex: 1; padding: 12px; border-radius: 12px; border: none; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .dialog-btn:active { transform: scale(0.95); }
+        .dialog-btn-cancel { background: var(--input-bg); color: var(--text-muted); border: 1px solid var(--border); }
+        .dialog-btn-ok { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(47, 117, 181, 0.3); }
+        body.dark-mode .dialog-btn-ok { box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3); }
+
+    </style>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Petits Jours">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('SW registered!', reg))
+            .catch(err => console.log('SW failed', err));
+        });
+      }
+    </script>
+
+</head>
+<body>
+
+    <div class="app-header" id="main-header">
+        <div class="header-top">
+            <div class="header-title">
+                <h1 id="t_app_title">👶 Comparateur Bébé</h1>
+                <p id="t_app_subtitle">Gérez vos magasins et budget</p>
+            </div>
+            <div class="header-controls">
+                <button class="ctrl-btn" onclick="toggleDarkMode()" id="dark-mode-btn"><i class="fas fa-moon"></i></button>
+                <button class="ctrl-btn" id="lang-btn" onclick="toggleLang()" style="font-size: 11px; font-weight: bold; text-transform: uppercase;">FR</button>
+                <button class="ctrl-btn" onclick="openSettingsModal()"><i class="fas fa-share-alt"></i></button>
+            </div>
+        </div>
+        
+        <div class="budget-container" onclick="setBudget()">
+            <div class="budget-texts">
+                <span id="budget-text-spent">Total: 0 DH</span>
+                <span id="budget-text-max">Budget: 10000 DH</span>
+            </div>
+            <div class="budget-bar-bg">
+                <div class="budget-bar-fill" id="budget-bar-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tabs-container" id="tabs-container"></div>
+    
+    <!-- Barre de recherche -->
+    <div class="search-wrapper hidden" id="search-wrapper">
+        <i class="fas fa-search"></i>
+        <input type="text" id="search-input" oninput="handleSearch(this.value)">
+    </div>
+
+    <!-- Filtres Rapides -->
+    <div class="filters-wrapper hidden" id="filters-wrapper">
+        <button class="filter-btn active" id="btn-filter-all" onclick="setFilter('all')">Tout</button>
+        <button class="filter-btn" id="btn-filter-todo" onclick="setFilter('todo')">À acheter</button>
+        <button class="filter-btn" id="btn-filter-bought" onclick="setFilter('bought')">Achetés ✅</button>
+        <button class="filter-btn" id="btn-filter-prio" onclick="setFilter('prio')">Priorité ⭐</button>
+        <button class="filter-btn" id="btn-filter-valise" onclick="setFilter('valise')">Valise 🧳</button>
+    </div>
+
+    <div class="content" id="main-content"></div>
+    
+    <div class="content hidden" id="summary-content">
+        <h2 style="color: var(--primary); text-align: center;" id="t_summary_title">📊 Résumé & Comparaison</h2>
+        
+        <!-- Graphique (Statistiques) -->
+        <div class="chart-wrapper hidden" id="chart-wrapper-el">
+            <canvas id="budgetChart"></canvas>
+        </div>
+
+        <div class="summary-container">
+            <table class="summary-table" id="summary-table"></table>
+        </div>
+        
+        <!-- Boutons d'export et Partage Wishlist -->
+        <div style="margin-top: 30px; display:flex; flex-direction: column; gap:15px; padding: 0 10px;">
+            <div style="display:flex; justify-content:center; gap:15px;">
+                <button class="btn" style="background:#E74C3C; flex:1; margin:0; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="window.print()">
+                    <i class="fas fa-file-pdf"></i> <span id="t_btn_pdf">Télécharger PDF</span>
+                </button>
+                <button class="btn btn-success" style="flex:1; margin:0; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="exportToExcel()">
+                    <i class="fas fa-file-excel"></i> <span id="t_btn_excel">Excel</span>
+                </button>
+            </div>
+            
+            <button class="btn" style="background:#8E44AD; margin:0; display:flex; align-items:center; justify-content:center; gap:8px; width: 100%;" onclick="shareWishlist()">
+                <i class="fas fa-gift"></i> <span id="t_btn_wishlist">Partager Liste Cadeaux (Wishlist)</span>
+            </button>
+            <button class="btn" style="background:#16A085; margin:0; display:flex; align-items:center; justify-content:center; gap:8px; width: 100%;" onclick="shareValise()">
+                <i class="fas fa-suitcase"></i> <span id="t_btn_valise_share">Partager Valise Maternité</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="signature">
+        <span id="t_signature">Developped by your daddy ❤️</span>
+    </div>
+
+    <div class="total-footer" id="total-footer">
+        <div class="total-label"><span id="t_footer_total">Total</span> <span id="current-store-name">Magasin</span> :</div>
+        <div class="total-value" id="current-store-total">0.00 DH</div>
+    </div>
+
+    <!-- Modals & Action Sheets... -->
+    <div id="image-action-sheet" class="hidden">
+        <div class="sheet-overlay" onclick="cancelSheet()"></div>
+        <div class="sheet-content-wrapper">
+            <h3 class="modal-title" style="margin-bottom:20px;" id="t_img_source">Source d'image?</h3>
+            <button class="sheet-btn sheet-btn-primary" onclick="triggerInput('camera')">
+                <i class="fas fa-camera"></i> <span id="t_img_cam">Caméra</span>
+            </button>
+            <button class="sheet-btn sheet-btn-success" onclick="triggerInput('gallery')">
+                <i class="fas fa-images"></i> <span id="t_img_gal">Galerie</span>
+            </button>
+            <button class="sheet-btn sheet-btn-cancel" onclick="cancelSheet()">
+                <i class="fas fa-times"></i> <span id="t_img_cancel">Annuler</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="preview-modal" onclick="closePreviewModal()" style="z-index: 100000;">
+        <div class="modal-content" style="background: transparent; box-shadow: none; align-items: center; padding: 0; width: 95%; max-width: 600px;" onclick="event.stopPropagation()">
+            <img id="preview-image-el" src="" style="width: 100%; max-height: 80vh; object-fit: contain; border-radius: 12px; border: 2px solid white; box-shadow: 0 15px 35px rgba(0,0,0,0.5); background: rgba(0,0,0,0.5);">
+            <button class="btn" style="background: var(--card-bg); color: var(--text-main); margin-top: 15px; font-weight: bold; border-radius: 20px; padding: 12px 30px; font-size: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);" onclick="closePreviewModal()"><i class="fas fa-times"></i> <span id="t_preview_close">Fermer</span></button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal-content">
+            <h3 class="modal-title" id="t_sync_title">Sauvegarde & Partage 🔄</h3>
+            <p class="modal-body" id="t_sync_desc">Téléchargez vos données pour les partager avec votre partenaire via WhatsApp, ou importez un fichier existant.</p>
+            <button class="btn btn-primary" onclick="exportDataToFile()"><i class="fas fa-download"></i> <span id="t_sync_export">Télécharger Fichier</span></button>
+            <button class="btn" style="background:var(--secondary);" onclick="document.getElementById('import-file-input').click()"><i class="fas fa-upload"></i> <span id="t_sync_import">Importer Fichier</span></button>
+            <button class="btn" style="background:var(--danger); margin-top:15px;" onclick="resetAllData()"><i class="fas fa-trash-alt"></i> <span id="t_sync_reset">Ms7 Kolchi (Reset)</span></button>
+            <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="importDataFromFile(event)">
+            <button class="btn" style="background:var(--input-bg); color:var(--text-main); border:1px solid var(--border);" onclick="closeSettingsModal()"><span id="t_sync_close">Fermer</span></button>
+        </div>
+    </div>
+
+    <input type="file" id="global-camera-input" accept="image/*" capture="environment" style="display:none;" onchange="handleGlobalImage(event)">
+    <input type="file" id="global-gallery-input" accept="image/*" style="display:none;" onchange="handleGlobalImage(event)">
+
+    <script>
+        const i18n = {
+            fr: {
+                app_title: "👶 Petits Jours", app_subtitle: "Gérez vos magasins et budget",
+                summary_title: "📊 Résumé & Comparaison", btn_pdf: "Télécharger PDF", btn_excel: "Excel",
+                footer_total: "Total", img_source: "Source d'image?", img_cam: "Prendre une photo",
+                img_gal: "Choisir de la galerie", img_cancel: "Annuler", sync_title: "Sauvegarde & Partage 🔄",
+                sync_desc: "Téléchargez vos données pour les partager (ex: via WhatsApp), ou importez un fichier.",
+                sync_export: "Télécharger (Export)", sync_import: "Importer Fichier", sync_close: "Fermer",
+                tab_add: "Ajouter Magasin", tab_sum: "Résumé", cat_add: "Ajouter article", 
+                new_cat_btn: "Nouvelle Catégorie", prompt_item: "Nom de l'article:", prompt_cat: "Nom de la catégorie:",
+                prompt_store: "Nom du magasin:", prompt_budget: "Entrez votre budget global (DH):",
+                placeholder_name: "Nom de l'article...", placeholder_det: "Qte/Détail...", placeholder_note: "Notes / Remarques...",
+                alert_del_item: "Supprimer cet article ?", alert_del_store: "Supprimer ce magasin ?", alert_del_img: "Supprimer l'image ?",
+                badge_bought: "Acheté", placeholder_search: "Rechercher un article...", chart_title: "Répartition du Budget",
+                filter_all: "Tout", filter_todo: "À acheter", filter_bought: "Achetés ✅", filter_prio: "Priorité ⭐", 
+                btn_wishlist: "Partager Liste Cadeaux (Wishlist)", wishlist_msg: "Voici ma liste de cadeaux de naissance 👶🎁 :\n\n",
+                wishlist_empty: "La liste est vide ! Sélectionnez d'abord des articles en priorité ⭐.", filter_valise: "Valise 🧳", btn_valise_share: "Partager Valise Maternité 🧳", valise_msg: "Voici le contenu de notre Valise de Maternité 🧳 :\n\n", valise_empty: "La valise est vide ! Cochez l'icône 🧳 sur les articles à emporter.",
+                no_items: "Aucun article trouvé.", alert_import_success: "Données importées avec succès !", alert_import_error: "Fichier invalide.",
+                alert_reset: "Êtes-vous sûr de vouloir tout effacer ? (Action irréversible)", table_article: "Article",
+                tooltip_prio: "Priorité", tooltip_valise: "Valise Maternité", tooltip_ws: "Partager sur WhatsApp",
+                tooltip_drag: "Réorganiser", tooltip_add: "Ajouter un article", budget_lbl: "Budget", preview_close: "Fermer",
+                signature: "Développé par papa ❤️"
+            },
+            ma: {
+                app_title: "👶 Petits Jours", app_subtitle: "Gad l'budget o les magasins",
+                summary_title: "📊 Kholasa o l'Mo9arana", btn_pdf: "Sajjel PDF (B tsawer)", btn_excel: "Excel (Bla tsawer)",
+                footer_total: "Lmejmou3", img_source: "Mnin tjib tswira?", img_cam: "Sewer b l'Caméra",
+                img_gal: "3zel mn l'Galerie", img_cancel: "Bllach", sync_title: "Partage o Sauvegarde 🔄",
+                sync_desc: "Téléchargi fichier dyalk bach tsifto f WhatsApp l mratek, wla importi fichier 3ndk.",
+                sync_export: "Téléchargi (Export)", sync_import: "Importi Fichier", sync_close: "Sedd",
+                tab_add: "Zid Magasin", tab_sum: "Kholasa", cat_add: "Zid article hna", 
+                new_cat_btn: "Zid Catégorie Jdida", prompt_item: "Smiyat l'article:", prompt_cat: "Smiyat la catégorie (ex: Jouets):",
+                prompt_store: "Smiyat l'magasin:", prompt_budget: "Ch7al l'budget lli 7ttiti? (DH):",
+                placeholder_name: "Smiyat l'article...", placeholder_det: "Qte/Détail...", placeholder_note: "Mola7adat wla remarques...",
+                alert_del_item: "Wach mt2ked bghiti tmse7 had l'article?", alert_del_store: "Wach mt2ked bghiti tmse7 magasin?", alert_del_img: "Tmse7 tswira?",
+                badge_bought: "Mchri ✅", placeholder_search: "9elleb 3la chi article...", chart_title: "T9ssim dyal l'Budget",
+                filter_all: "Kolchi", filter_todo: "Baqi machritouch", filter_bought: "Mchri ✅", filter_prio: "Darouri ⭐", 
+                btn_wishlist: "Partager Liste Cadeaux 🎁", wishlist_msg: "Hadi la liste dyal les cadeaux li m7tajin l'bébé inchaAllah 👶🎁 :\n\n",
+                wishlist_empty: "La liste khawya! Zid chi article fl'priorité ⭐ (w maykonch mchri).", filter_valise: "Sac d Sbitar 🧳", btn_valise_share: "Partager Sac d Sbitar 🧳", valise_msg: "Hadi la liste dyal dakchi li ghadi ndiw m3ana l sbitar inchaAllah (Sac) 🧳 :\n\n", valise_empty: "Sac d sbitar khawi! Zid liha lhwayj b l'icone 🧳.",
+                no_items: "Makayn hta article.", alert_import_success: "Data tchargat mzyan!", alert_import_error: "Fichier mashi s7i7.",
+                alert_reset: "Wach mt2ked bghiti tmse7 kolchi w trje3 mn zérou? (Rad lbal, ay7yed ga3 data)", table_article: "L'article",
+                tooltip_prio: "Darouri", tooltip_valise: "Sac d Sbitar", tooltip_ws: "Sayft f WhatsApp",
+                tooltip_drag: "Beddel lblasa", tooltip_add: "Zid article", budget_lbl: "L'budget", preview_close: "Sedd",
+                signature: "Msayeb mn 3nd Papa ❤️"
+            },
+            en: {
+                app_title: "👶 Petits Jours", app_subtitle: "Manage stores and budget",
+                summary_title: "📊 Summary & Comparison", btn_pdf: "Download PDF", btn_excel: "Excel",
+                footer_total: "Total", img_source: "Image source?", img_cam: "Take Photo",
+                img_gal: "Choose from Gallery", img_cancel: "Cancel", sync_title: "Backup & Share 🔄",
+                sync_desc: "Download your data to share via WhatsApp, or import an existing file.",
+                sync_export: "Download File", sync_import: "Import File", sync_close: "Close",
+                tab_add: "Add Store", tab_sum: "Summary", cat_add: "Add Item", 
+                new_cat_btn: "New Category", prompt_item: "Item name:", prompt_cat: "Category name:",
+                prompt_store: "Store name:", prompt_budget: "Enter your max budget (DH):",
+                placeholder_name: "Item name...", placeholder_det: "Qty/Detail...", placeholder_note: "Notes / Remarks...",
+                alert_del_item: "Delete this item?", alert_del_store: "Delete this store?", alert_del_img: "Remove image?",
+                badge_bought: "Bought", placeholder_search: "Search for an item...", chart_title: "Budget Breakdown",
+                filter_all: "All", filter_todo: "To Buy", filter_bought: "Bought ✅", filter_prio: "Priority ⭐", 
+                btn_wishlist: "Share Baby Wishlist 🎁", wishlist_msg: "Here is our baby wishlist 👶🎁 :\n\n",
+                wishlist_empty: "The wishlist is empty! Add some priority ⭐ items first.", filter_valise: "Hospital Bag 🧳", btn_valise_share: "Share Hospital Bag 🧳", valise_msg: "Here is our Hospital Bag packing list 🧳 :\n\n", valise_empty: "The hospital bag is empty! Check the 🧳 icon on items to pack.",
+                no_items: "No items found.", alert_import_success: "Data imported successfully!", alert_import_error: "Invalid file.",
+                alert_reset: "Are you sure you want to reset everything? (This cannot be undone)", table_article: "Item",
+                tooltip_prio: "Priority", tooltip_valise: "Hospital Bag", tooltip_ws: "Share on WhatsApp",
+                tooltip_drag: "Reorder", tooltip_add: "Add an item", budget_lbl: "Budget", preview_close: "Close",
+                signature: "Developed by daddy ❤️"
+            }
+        };
+
+        let currentLang = localStorage.getItem('bb_lang') || 'fr';
+        let isDarkMode = localStorage.getItem('bb_darkmode') === 'true';
+        let budget = parseFloat(localStorage.getItem('bb_budget')) || 10000;
+        
+        const defaultItems = [
+            {id: 'i1', cat: 'Vêtements (الملابس)', catClass: 'cat-v', name: 'Sous vêtement (demi manches)', det: '', img: '', note: '', bought: false, priority: true},
+            {id: 'i2', cat: 'Vêtements (الملابس)', catClass: 'cat-v', name: 'Pyjamas - Grenouillère', det: '', img: '', note: '', bought: false, priority: false},
+            {id: 'i3', cat: 'Vêtements (الملابس)', catClass: 'cat-v', name: 'Bonnets', det: '', img: '', note: '', bought: false, priority: false},
+            {id: 'i4', cat: 'Vêtements (الملابس)', catClass: 'cat-v', name: 'Chaussettes', det: '', img: '', note: '', bought: false, priority: false},
+            {id: 'i5', cat: 'Vêtements (الملابس)', catClass: 'cat-v', name: 'Mouffles', det: '', img: '', note: '', bought: false, priority: false},
+            {id: 'i6', cat: 'Vêtements (الملابس)', catClass: 'cat-v', name: 'Bavoirs', det: '', img: '', note: '', bought: false, priority: true},
+            {id: 'i7', cat: 'Vêtements (الملابس)', catClass: 'cat-v', name: 'Tenu de sortie', det: '', img: '', note: '', bought: false, priority: false},
+            {id: 'i8', cat: 'Vêtements (الملابس)', catClass: 'cat-v', name: 'Langes en coton', det: '', img: '', note: '', bought: false, priority: false},
+            {id: 'i9', cat: 'Vêtements (الملابس)', catClass: 'cat-v', name: 'Gigoteuse', det: '', img: '', note: '', bought: false, priority: false},
+            {id: 'i10', cat: 'Couchage (النوم)', catClass: 'cat-c', name: 'Lit bébé + Matelas', det: '', img: '', note: '', bought: false, priority: true},
+            {id: 'i11', cat: 'Couchage (النوم)', catClass: 'cat-c', name: 'Draps-housses / couverture', det: '', img: '', note: '', bought: false, priority: false},
+            {id: 'i12', cat: 'Couchage (النوم)', catClass: 'cat-c', name: 'Alèse de matelas', det: '', img: '', note: '', bought: false, priority: false},
+            {id: 'i13', cat: 'Couchage (النوم)', catClass: 'cat-c', name: 'Veilleuse', det: '', img: '', note: '', bought: false, priority: false},
+            {id: 'i14', cat: 'Couchage (النوم)', catClass: 'cat-c', name: 'Poussette', det: '', img: '', note: '', bought: false, priority: false},
+            {id: 'i15', cat: 'Couchage (النوم)', catClass: 'cat-c', name: 'Siège-auto', det: '', img: '', note: '', bought: false, priority: false},
+            {id: 'i16', cat: 'Couchage (النوم)', catClass: 'cat-c', name: 'Porte bébé', det: '', img: '', note: '', bought: false, priority: false},
+            {id: 'i17', cat: 'Couchage (النوم)', catClass: 'cat-c', name: 'Sac à langer', det: '', img: '', note: '', bought: false, priority: true},
+            {id: 'i18', cat: 'Couchage (النوم)', catClass: 'cat-c', name: "Nid d'ange / Couverture", det: '', img: '', note: '', bought: false, priority: false},
+            {id: 'i19', cat: 'Toilette (النظافة)', catClass: 'cat-t', name: 'Couche : taille 1', det: '', img: '', note: '', bought: false, priority: true},
+            {id: 'i20', cat: 'Toilette (النظافة)', catClass: 'cat-t', name: 'Carrés de coton', det: '', img: '', note: '', bought: false, priority: false},
+            {id: 'i21', cat: 'Toilette (النظافة)', catClass: 'cat-t', name: 'Serviettes à capuche', det: '', img: '', note: '', bought: false, priority: false},
+            {id: 'i22', cat: 'Toilette (النظافة)', catClass: 'cat-t', name: 'Gant de bain', det: '', img: '', note: '', bought: false, priority: false},
+            {id: 'i23', cat: 'Toilette (النظافة)', catClass: 'cat-t', name: 'Gel lavant + Crème', det: '', img: '', note: '', bought: false, priority: true},
+            {id: 'i24', cat: 'Toilette (النظافة)', catClass: 'cat-t', name: 'Sérum physiologique', det: '', img: '', note: '', bought: false, priority: false},
+            {id: 'i25', cat: 'Toilette (النظافة)', catClass: 'cat-t', name: 'Thermomètre digital', det: '', img: '', note: '', bought: false, priority: true},
+            {id: 'i26', cat: 'Toilette (النظافة)', catClass: 'cat-t', name: 'Baignoire bébé', det: '', img: '', note: '', bought: false, priority: false},
+            {id: 'i27', cat: 'Toilette (النظافة)', catClass: 'cat-t', name: 'Lessive douce', det: '', img: '', note: '', bought: false, priority: false},
+            {id: 'i28', cat: 'Toilette (النظافة)', catClass: 'cat-t', name: 'Trousse de toilette', det: '', img: '', note: '', bought: false, priority: false},
+            {id: 'i29', cat: 'Toilette (النظافة)', catClass: 'cat-t', name: 'Lingette', det: '', img: '', note: '', bought: false, priority: true}
+        ];
+        const defaultStores = [{id: 's1', name: 'Magasin 1'}];
+
+        let items = JSON.parse(localStorage.getItem('bb_items15')) || JSON.parse(localStorage.getItem('bb_items6')) || [...defaultItems];
+        items = items.map(i => ({...i, note: i.note || '', bought: !!i.bought, priority: !!i.priority, valise: !!i.valise})); 
+        
+        let stores = JSON.parse(localStorage.getItem('bb_stores15')) || JSON.parse(localStorage.getItem('bb_stores6')) || [...defaultStores];
+        let prices = JSON.parse(localStorage.getItem('bb_prices15')) || JSON.parse(localStorage.getItem('bb_prices6')) || {}; 
+        let images = JSON.parse(localStorage.getItem('bb_images15')) || {};
+        let notes = JSON.parse(localStorage.getItem('bb_notes15')) || {};
+        let activeTabId = stores.length > 0 ? stores[0].id : 'summary';
+        let currentImageTargetId = null;
+        
+        let dragModeCategory = null; 
+        let draggedItemId = null; 
+        let searchQuery = ''; 
+        let currentFilter = 'all';
+
+        
+        const showDialog = (type, message, defaultVal = '') => {
+            return new Promise((resolve) => {
+                const overlay = document.getElementById('custom-dialog-overlay');
+                const msgEl = document.getElementById('dialog-msg');
+                const inputEl = document.getElementById('dialog-input');
+                const btnCancel = document.getElementById('dialog-btn-cancel');
+                const btnOk = document.getElementById('dialog-btn-ok');
+
+                msgEl.innerHTML = message.replace(/\n/g, '<br>');
+                
+                if (type === 'prompt') {
+                    inputEl.style.display = 'block';
+                    inputEl.value = defaultVal;
+                } else {
+                    inputEl.style.display = 'none';
+                }
+
+                if (type === 'alert') {
+                    btnCancel.style.display = 'none';
+                } else {
+                    btnCancel.style.display = 'flex';
+                    btnCancel.innerText = t('img_cancel');
+                }
+
+                btnOk.innerText = 'OK';
+
+                overlay.classList.add('active');
+                
+                const handleKey = (e) => { if(e.key === 'Enter') { e.preventDefault(); btnOk.click(); } };
+                if (type === 'prompt') {
+                    inputEl.addEventListener('keypress', handleKey);
+                    setTimeout(() => { inputEl.focus(); inputEl.select(); }, 100);
+                }
+
+                const closeDialog = (result) => {
+                    overlay.classList.remove('active');
+                    btnCancel.onclick = null;
+                    btnOk.onclick = null;
+                    if(type === 'prompt') inputEl.removeEventListener('keypress', handleKey);
+                    resolve(result);
+                };
+
+                btnCancel.onclick = () => closeDialog(null);
+                overlay.onclick = (e) => { if (e.target === overlay) closeDialog(null); };
+                btnOk.onclick = () => {
+                    if (type === 'prompt') {
+                        closeDialog(inputEl.value);
+                    } else {
+                        closeDialog(true);
+                    }
+                };
+            });
+        };
+
+        const syncHeaderHeight = () => {
+            const header = document.getElementById('main-header');
+            if(header) {
+                const h = header.getBoundingClientRect().height; 
+                document.documentElement.style.setProperty('--header-h', h + 'px');
+            }
+        };
+        window.addEventListener('resize', syncHeaderHeight);
+        setTimeout(syncHeaderHeight, 100);
+
+        let lastScrollTop = 0;
+        window.addEventListener("scroll", function() {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const header = document.getElementById('main-header');
+            const tabs = document.getElementById('tabs-container');
+            const searchWrap = document.getElementById('search-wrapper');
+            const filtersWrap = document.getElementById('filters-wrapper');
+            
+            if (scrollTop > lastScrollTop && scrollTop > 50) {
+                header.classList.add('header-hidden');
+                tabs.classList.add('header-hidden');
+                if(searchWrap) searchWrap.style.transform = `translateY(calc(-1 * var(--header-h)))`;
+                if(filtersWrap) filtersWrap.style.transform = `translateY(calc(-1 * var(--header-h)))`;
+            } else {
+                header.classList.remove('header-hidden');
+                tabs.classList.remove('header-hidden');
+                if(searchWrap) searchWrap.style.transform = `translateY(0)`;
+                if(filtersWrap) filtersWrap.style.transform = `translateY(0)`;
+            }
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        }, false);
+
+        const t = (key) => i18n[currentLang][key] || key;
+
+        const applyTheme = () => {
+            if(isDarkMode) document.body.classList.add('dark-mode');
+            else document.body.classList.remove('dark-mode');
+            document.getElementById('dark-mode-btn').innerHTML = isDarkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            
+            if(window.budgetChartInstance) {
+                window.budgetChartInstance.options.plugins.legend.labels.color = isDarkMode ? '#E0E0E0' : '#333333';
+                window.budgetChartInstance.options.plugins.title.color = isDarkMode ? '#E0E0E0' : '#333333';
+                window.budgetChartInstance.update();
+            }
+        };
+        
+        const toggleDarkMode = () => {
+            isDarkMode = !isDarkMode;
+            localStorage.setItem('bb_darkmode', isDarkMode);
+            applyTheme();
+        };
+
+        const toggleLang = () => {
+            const langs = ['fr', 'ma', 'en'];
+            let currentIndex = langs.indexOf(currentLang);
+            if (currentIndex === -1) currentIndex = 0;
+            const nextLang = langs[(currentIndex + 1) % langs.length];
+            changeLang(nextLang);
+        };
+
+        const changeLang = (lang) => {
+            currentLang = lang;
+            localStorage.setItem('bb_lang', currentLang);
+            updateUITexts();
+            renderApp();
+        };
+
+        const updateUITexts = () => {
+            const langBtn = document.getElementById('lang-btn');
+            if (langBtn) langBtn.innerText = currentLang;
+            ['app_title', 'app_subtitle', 'summary_title', 'btn_pdf', 'btn_excel', 'footer_total', 'img_source', 'img_cam', 'img_gal', 'img_cancel', 'sync_title', 'sync_desc', 'sync_export', 'sync_import', 'sync_close', 'btn_wishlist', 'btn_valise_share', 'preview_close', 'signature'].forEach(id => {
+                const el = document.getElementById(`t_${id}`);
+                if(el) el.innerText = t(id);
+            });
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) searchInput.placeholder = t('placeholder_search');
+
+            // Mise à jour des boutons de filtres
+            document.getElementById('btn-filter-all').innerText = t('filter_all');
+            document.getElementById('btn-filter-todo').innerText = t('filter_todo');
+            document.getElementById('btn-filter-bought').innerText = t('filter_bought');
+            document.getElementById('btn-filter-prio').innerText = t('filter_prio');
+            document.getElementById('btn-filter-valise').innerText = t('filter_valise');
+        };
+
+        const saveData = () => {
+            localStorage.setItem('bb_items15', JSON.stringify(items));
+            localStorage.setItem('bb_stores15', JSON.stringify(stores));
+            localStorage.setItem('bb_prices15', JSON.stringify(prices));
+            localStorage.setItem('bb_images15', JSON.stringify(images));
+            localStorage.setItem('bb_notes15', JSON.stringify(notes));
+            localStorage.setItem('bb_budget', budget);
+            calculateTotal();
+            updateBudgetUI();
+        };
+
+        const setBudget = async () => {
+            const val = await showDialog('prompt', t('prompt_budget'), budget);
+            if(val && !isNaN(val)) {
+                budget = parseFloat(val);
+                saveData();
+            }
+        };
+
+        const updateBudgetUI = () => {
+            let totalSpent = 0;
+            if (activeTabId === 'summary') {
+                items.forEach(item => {
+                    let minP = null;
+                    stores.forEach(s => {
+                        let p = parseFloat((prices[s.id] || {})[item.id]);
+                        if(!isNaN(p) && p>0 && (minP === null || p < minP)) minP = p;
+                    });
+                    if(minP) totalSpent += minP;
+                });
+            } else {
+                if (prices[activeTabId]) {
+                    Object.values(prices[activeTabId]).forEach(val => { totalSpent += parseFloat(val) || 0; });
+                }
+            }
+            
+            document.getElementById('budget-text-spent').innerText = `${t('footer_total')}: ${totalSpent.toFixed(0)} DH`;
+            document.getElementById('budget-text-max').innerText = `${t('budget_lbl')}: ${budget} DH`;
+            
+            const pct = Math.min((totalSpent / (budget || 1)) * 100, 100);
+            const bar = document.getElementById('budget-bar-fill');
+            bar.style.width = pct + '%';
+            if(pct >= 100) bar.classList.add('budget-over');
+            else bar.classList.remove('budget-over');
+        };
+
+        const openSettingsModal = () => document.getElementById('settings-modal').classList.add('active');
+        const closeSettingsModal = () => document.getElementById('settings-modal').classList.remove('active');
+
+        const exportDataToFile = () => {
+            const data = { items, stores, prices, images, notes, budget };
+            const jsonStr = JSON.stringify(data);
+            const blob = new Blob([jsonStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Bebe_Data_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            closeSettingsModal();
+        };
+
+        const importDataFromFile = async (event) => {
+            const file = event.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if(data.items && data.stores) {
+                        items = data.items.map(i => ({...i, priority: !!i.priority}));
+                        stores = data.stores;
+                        prices = data.prices || {}; images = data.images || {}; notes = data.notes || {};
+                        budget = data.budget || 10000;
+                        activeTabId = stores.length > 0 ? stores[0].id : 'summary';
+                        saveData();
+                        renderApp();
+                        await showDialog('alert', t('alert_import_success'));
+                    }
+                } catch (err) {
+                    await showDialog('alert', t('alert_import_error'));
+                }
+            };
+            reader.readAsText(file);
+            closeSettingsModal();
+        };
+
+        const renderTabs = () => {
+            const container = document.getElementById('tabs-container');
+            container.innerHTML = '';
+
+            stores.forEach(store => {
+                const div = document.createElement('div');
+                div.className = `tab ${activeTabId === store.id ? 'active' : ''}`;
+                div.onclick = (e) => { if (e.target.tagName !== 'I') { activeTabId = store.id; renderApp(); window.scrollTo(0, 0); } };
+                div.innerHTML = `<i class="fas fa-store"></i> ${store.name}
+                    <i class="fas fa-pencil-alt edit-store" onclick="renameStore('${store.id}')"></i>
+                    ${stores.length > 1 ? `<i class="fas fa-times edit-store" style="color:var(--danger);" onclick="deleteStore('${store.id}')"></i>` : ''}`;
+                container.appendChild(div);
+            });
+
+            const addDiv = document.createElement('div');
+            addDiv.className = 'tab tab-add';
+            addDiv.innerHTML = `<i class="fas fa-plus"></i> ${t('tab_add')}`;
+            addDiv.onclick = addNewStore;
+            container.appendChild(addDiv);
+
+            const sumDiv = document.createElement('div');
+            sumDiv.className = `tab tab-summary ${activeTabId === 'summary' ? 'active' : ''}`;
+            sumDiv.innerHTML = `<i class="fas fa-table"></i> ${t('tab_sum')}`;
+            sumDiv.onclick = () => { activeTabId = 'summary'; renderApp(); window.scrollTo(0, 0); };
+            container.appendChild(sumDiv);
+        };
+        
+        // --- LOGIQUE RECHERCHE ET FILTRES ---
+        const handleSearch = (val) => {
+            searchQuery = val.toLowerCase();
+            renderStoreContent(); 
+        };
+
+        const setFilter = (filterName) => {
+            currentFilter = filterName;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-filter-' + filterName).classList.add('active');
+            renderStoreContent();
+        };
+        
+        // --- LOGIQUE DRAG & DROP ---
+        const toggleDragMode = (cat) => {
+            dragModeCategory = dragModeCategory === cat ? null : cat;
+            renderApp();
+        };
+        
+        const handleDragStart = (e, handleEl, id) => {
+            draggedItemId = id;
+            if(e.dataTransfer) {
+                e.dataTransfer.effectAllowed = "move";
+                e.dataTransfer.setData("text/plain", id);
+                const card = handleEl.closest('.card');
+                if (card && e.dataTransfer.setDragImage) e.dataTransfer.setDragImage(card, 20, 20);
+            }
+            setTimeout(() => { const card = handleEl.closest('.card'); if(card) card.style.opacity = "0.4"; }, 10);
+        };
+        
+        const handleDragEnter = (e, el) => { e.preventDefault(); el.classList.add('drag-over'); };
+        const handleDragOver = (e, el) => { e.preventDefault(); if(e.dataTransfer) e.dataTransfer.dropEffect = "move"; };
+        const handleDragLeave = (e, el) => { el.classList.remove('drag-over'); };
+        
+        const handleDrop = (e, el, targetId) => {
+            e.preventDefault();
+            e.stopPropagation();
+            el.classList.remove('drag-over');
+            
+            if (!draggedItemId || draggedItemId === targetId) { el.style.opacity = "1"; return; }
+
+            const fromIndex = items.findIndex(i => i.id === draggedItemId);
+            const toIndex = items.findIndex(i => i.id === targetId);
+
+            if (fromIndex !== -1 && toIndex !== -1 && items[fromIndex].cat === items[toIndex].cat) {
+                const movedItem = items.splice(fromIndex, 1)[0];
+                items.splice(toIndex, 0, movedItem);
+                saveData();
+                renderApp();
+            } else { el.style.opacity = "1"; }
+            draggedItemId = null;
+        };
+        
+        const handleDragEnd = (e, handleEl) => {
+            if(handleEl) { const card = handleEl.closest('.card'); if(card) card.style.opacity = "1"; }
+            draggedItemId = null;
+            document.querySelectorAll('.drag-over').forEach(c => c.classList.remove('drag-over'));
+        };
+        
+        // --- LOGIQUE PRIORITÉ & WHATSAPP ---
+        const togglePriority = (itemId) => {
+            const idx = items.findIndex(i => i.id === itemId);
+            if(idx !== -1) { items[idx].priority = !items[idx].priority; saveData(); renderStoreContent(); }
+        };
+        
+        const shareWhatsApp = (itemId) => {
+            const item = items.find(i => i.id === itemId);
+            const store = stores.find(s => s.id === activeTabId);
+            const price = (prices[activeTabId] && prices[activeTabId][itemId]) ? prices[activeTabId][itemId] : 0;
+            const tStore = store ? store.name : t('tab_sum');
+            
+            let text = '';
+            if (currentLang === 'ma') text = `Salam! L9it *${item.name}* b *${price} DH* f *${tStore}*.\nChno ban lik?`;
+            else if (currentLang === 'en') text = `Hi! I found *${item.name}* for *${price} DH* at *${tStore}*.\nWhat do you think?`;
+            else text = `Salut ! J'ai trouvé *${item.name}* à *${price} DH* chez *${tStore}*.\nQu'est-ce que tu en penses ?`;
+            
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        };
+
+        
+        const toggleValise = (itemId) => {
+            const idx = items.findIndex(i => i.id === itemId);
+            if(idx !== -1) { items[idx].valise = !items[idx].valise; saveData(); renderStoreContent(); }
+        };
+        
+        const shareValise = async () => {
+            const valiseItems = items.filter(i => i.valise);
+            if(valiseItems.length === 0) {
+                await showDialog('alert', t('valise_empty'));
+                return;
+            }
+            let text = t('valise_msg');
+            valiseItems.forEach(i => { text += `- ${i.name}\n`; });
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        };
+
+        const shareWishlist = async () => {
+            const wishlistItems = items.filter(i => !i.bought && i.priority);
+            if(wishlistItems.length === 0) {
+                await showDialog('alert', t('wishlist_empty'));
+                return;
+            }
+            let text = t('wishlist_msg');
+            wishlistItems.forEach(i => { text += `- ${i.name}\n`; });
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        };
+
+        const renderStoreContent = () => {
+            const container = document.getElementById('main-content');
+            container.innerHTML = '';
+            let currentCat = '';
+            
+            const filteredItems = items.filter(i => {
+                const matchSearch = i.name.toLowerCase().includes(searchQuery) || i.cat.toLowerCase().includes(searchQuery);
+                let matchFilter = true;
+                if (currentFilter === 'todo') matchFilter = !i.bought;
+                else if (currentFilter === 'bought') matchFilter = i.bought;
+                else if (currentFilter === 'prio') matchFilter = !!i.priority;
+                else if (currentFilter === 'valise') matchFilter = !!i.valise;
+                return matchSearch && matchFilter;
+            });
+
+            if(filteredItems.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--text-muted); font-style:italic;">${t('no_items')}</div>`;
+            }
+
+            filteredItems.forEach((item) => {
+                if (item.cat !== currentCat) {
+                    currentCat = item.cat;
+                    const header = document.createElement('div');
+                    header.className = `category-header ${item.catClass}`;
+                    
+                    // Désactiver le bouton Drag si on recherche ou on filtre (pour éviter les bugs d'index)
+                    const isDragMode = dragModeCategory === currentCat;
+                    const safeCat = currentCat.replace(/'/g, "\\'"); 
+                    const dragBtnHTML = (searchQuery === '' && currentFilter === 'all') ? `
+                        <button class="btn-icon-only" onclick="toggleDragMode('${safeCat}')" style="${isDragMode ? 'background: var(--primary); color: white;' : ''}" title="${t('tooltip_drag')}">
+                            <i class="fas fa-arrows-alt-v"></i>
+                        </button>
+                    ` : '';
+                    
+                    header.innerHTML = `
+                        <span>${currentCat}</span>
+                        <div class="btn-header-group">
+                            ${dragBtnHTML}
+                            <button class="btn-icon-only" onclick="addNewItem('${safeCat}', '${item.catClass}')" title="${t('tooltip_add')}">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(header);
+                }
+
+                const itemPrice = (prices[activeTabId] && prices[activeTabId][item.id]) ? prices[activeTabId][item.id] : '';
+                const itemImg = (images[activeTabId] && images[activeTabId][item.id]) ? images[activeTabId][item.id] : '';
+                
+                const isItemDragMode = dragModeCategory === item.cat && searchQuery === '' && currentFilter === 'all';
+                const card = document.createElement('div');
+                card.className = `card ${item.bought ? 'is-bought' : ''} ${isItemDragMode ? 'draggable' : ''}`;
+                
+                if (isItemDragMode) {
+                    card.setAttribute('ondragenter', `handleDragEnter(event, this)`);
+                    card.setAttribute('ondragover', `handleDragOver(event, this)`);
+                    card.setAttribute('ondragleave', `handleDragLeave(event, this)`);
+                    card.setAttribute('ondrop', `handleDrop(event, this, '${item.id}')`);
+                }
+
+                const dragHandle = isItemDragMode ? `<div class="drag-handle" draggable="true" 
+                    ondragstart="handleDragStart(event, this, '${item.id}')"
+                    ondragend="handleDragEnd(event, this)"
+                    ><i class="fas fa-grip-vertical"></i></div>` : '';
+
+                card.innerHTML = `
+                    <!-- Ligne 1 : Info principale -->
+                    <div class="card-row-top">
+                        ${dragHandle}
+                        <input type="checkbox" class="bought-check" ${item.bought ? 'checked' : ''} onchange="updateItem('${item.id}', 'bought', this.checked)">
+                        <input type="text" class="edit-name" value="${item.name.replace(/"/g, '&quot;')}" placeholder="${t('placeholder_name')}" onchange="updateItem('${item.id}', 'name', this.value)">
+                        <i class="fas fa-trash-alt btn-delete-item" onclick="deleteItem('${item.id}')"></i>
+                    </div>
+                    
+                    <!-- Ligne 2 : Détails & Image -->
+                    <div class="card-row-mid">
+                        <div class="item-img-wrapper">
+                            <div class="item-img-box" style="width:55px; height:55px;" onclick="openSheet('${item.id}')">
+                                ${itemImg ? `<img src="${itemImg}">` : `<i class="fas fa-camera" style="color:var(--text-muted); font-size:16px;"></i>`}
+                            </div>
+                            ${itemImg ? `<div class="remove-img-btn" onclick="removeImage('${item.id}', event)"><i class="fas fa-times"></i></div>` : ''}
+                            ${itemImg ? `<div class="preview-img-btn" onclick="openPreviewModal('${item.id}', event)"><i class="fas fa-eye"></i></div>` : ''}
+                        </div>
+                        <div class="mid-inputs">
+                            <input type="text" class="edit-det" style="width:100%; text-align:left; background:var(--input-bg); border:1px solid var(--border);" value="${item.det.replace(/"/g, '&quot;')}" placeholder="${t('placeholder_det')}" onchange="updateItem('${item.id}', 'det', this.value)">
+                            <input type="text" class="edit-note" value="${(notes[activeTabId] && notes[activeTabId][item.id]) ? notes[activeTabId][item.id].replace(/"/g, '&quot;') : ''}" placeholder="${t('placeholder_note')}" onchange="updateNote('${activeTabId}', '${item.id}', this.value)" style="margin-top:0;">
+                        </div>
+                    </div>
+                    
+                    <!-- Ligne 3 : Actions & Prix -->
+                    <div class="card-row-bottom">
+                        <div style="display:flex; gap:15px; align-items:center;">
+                            <i class="fas fa-star btn-priority ${item.priority ? 'active' : ''}" onclick="togglePriority('${item.id}')" title="${t('tooltip_prio')}"></i>
+                            <i class="fas fa-suitcase btn-valise ${item.valise ? 'active' : ''}" onclick="toggleValise('${item.id}')" title="${t('tooltip_valise')}"></i>
+                            <button class="btn-whatsapp" style="width:30px; height:30px; font-size:16px;" onclick="shareWhatsApp('${item.id}')" title="${t('tooltip_ws')}">
+                                <i class="fab fa-whatsapp"></i>
+                            </button>
+                        </div>
+                        <div class="price-input-container">
+                            <input type="number" inputmode="decimal" min="0" step="any" placeholder="0.00" value="${itemPrice}" oninput="updatePrice('${activeTabId}', '${item.id}', this.value)">
+                            <span>DH</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            if(searchQuery === '' && currentFilter === 'all') {
+                const addCatDiv = document.createElement('div');
+                addCatDiv.style.textAlign = 'center'; addCatDiv.style.marginTop = '20px';
+                addCatDiv.innerHTML = `<button class="btn btn-primary" onclick="addNewCategory()"><i class="fas fa-folder-plus"></i> ${t('new_cat_btn')}</button>`;
+                container.appendChild(addCatDiv);
+            }
+        };
+
+        const renderSummary = () => {
+            const table = document.getElementById('summary-table');
+            const chartWrapper = document.getElementById('chart-wrapper-el');
+            table.innerHTML = '';
+            
+            let catTotals = {};
+            let hasData = false;
+
+            let thead = `<tr><th>${t('table_article')}</th>`;
+            stores.forEach(s => { thead += `<th>${s.name}</th>`; });
+            thead += '</tr>';
+            table.innerHTML = thead;
+
+            items.forEach(item => {
+                let row = `<tr>
+                    <td>
+                        <div style="${item.bought ? 'opacity:0.6;' : ''}">
+                            ${item.priority ? '<i class="fas fa-star" style="color:#F1C40F; font-size:10px;"></i> ' : ''} 
+                            ${item.name} ${item.bought ? `<span class="bought-badge">${t('badge_bought')}</span>` : ''}
+                            ${item.det ? `<br><small style="color:var(--text-muted);">${item.det}</small>` : ''}
+                        </div>
+                    </td>`;
+                
+                let pricesArr = [];
+                stores.forEach(s => {
+                    let p = parseFloat((prices[s.id] || {})[item.id]);
+                    if(!isNaN(p) && p > 0) pricesArr.push(p);
+                });
+                let minPrice = pricesArr.length > 0 ? Math.min(...pricesArr) : null;
+
+                if (minPrice) {
+                    let shortCat = item.cat.split(' (')[0];
+                    catTotals[shortCat] = (catTotals[shortCat] || 0) + minPrice;
+                    hasData = true;
+                }
+
+                stores.forEach(s => {
+                    let pVal = (prices[s.id] || {})[item.id];
+                    let imgVal = (images[s.id] || {})[item.id];
+                    let noteVal = (notes[s.id] || {})[item.id];
+                    let display = pVal ? parseFloat(pVal).toFixed(2) + ' DH' : '-';
+                    let isBest = (minPrice && parseFloat(pVal) === minPrice) ? 'best-price' : '';
+                    
+                    let pdfExtra = '';
+                    if (imgVal) pdfExtra += `<img src="${imgVal}">`;
+                    if (noteVal) pdfExtra += `<div style="font-size:10px; color:gray; font-style:italic;">${noteVal}</div>`;
+                    
+                    row += `<td class="${isBest}" style="text-align:center; vertical-align:top;">
+                                <div style="font-weight:bold;">${display}</div>
+                                ${pdfExtra ? `<div class="pdf-only">${pdfExtra}</div>` : ''}
+                            </td>`;
+                });
+                row += '</tr>';
+                table.innerHTML += row;
+            });
+
+            let tfoot = `<tr><td style="font-weight:bold; background:var(--cat1);">${t('footer_total').toUpperCase()}</td>`;
+            stores.forEach(s => {
+                let total = 0;
+                if(prices[s.id]) { Object.values(prices[s.id]).forEach(val => { total += parseFloat(val) || 0; }); }
+                tfoot += `<td style="font-weight:bold; font-size:16px; background:var(--cat1);">${total.toFixed(2)} DH</td>`;
+            });
+            tfoot += '</tr>';
+            table.innerHTML += tfoot;
+
+            // Rendu du Graphique (Chart.js)
+            if (hasData) {
+                chartWrapper.classList.remove('hidden');
+                if(window.budgetChartInstance) window.budgetChartInstance.destroy();
+                const ctx = document.getElementById('budgetChart');
+                window.budgetChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(catTotals),
+                        datasets: [{
+                            data: Object.values(catTotals),
+                            backgroundColor: ['#3498DB', '#2ECC71', '#F1C40F', '#E74C3C', '#9B59B6', '#34495E', '#1ABC9C'],
+                            borderWidth: 2,
+                            borderColor: isDarkMode ? '#1E1E1E' : '#FFFFFF'
+                        }]
+                    },
+                    options: { 
+                        responsive: true,
+                        plugins: { 
+                            legend: { position: 'bottom', labels: { color: isDarkMode ? '#E0E0E0' : '#333333' } },
+                            title: { display: true, text: t('chart_title'), color: isDarkMode ? '#E0E0E0' : '#333333', font: {size: 16} }
+                        } 
+                    }
+                });
+            } else {
+                chartWrapper.classList.add('hidden');
+            }
+        };
+
+        const renderApp = () => {
+            renderTabs();
+            const mainContent = document.getElementById('main-content');
+            const summaryContent = document.getElementById('summary-content');
+            const footer = document.getElementById('total-footer');
+            const searchWrap = document.getElementById('search-wrapper');
+            const filtersWrap = document.getElementById('filters-wrapper');
+
+            if (activeTabId === 'summary') {
+                document.body.classList.add('is-summary');
+                mainContent.classList.add('hidden');
+                searchWrap.classList.add('hidden');
+                filtersWrap.classList.add('hidden');
+                summaryContent.classList.remove('hidden');
+                if (footer) footer.classList.add('hidden');
+                renderSummary();
+            } else {
+                document.body.classList.remove('is-summary');
+                mainContent.classList.remove('hidden');
+                searchWrap.classList.remove('hidden');
+                filtersWrap.classList.remove('hidden');
+                summaryContent.classList.add('hidden');
+                if (footer) footer.classList.remove('hidden');
+                const currentStore = stores.find(s => s.id === activeTabId);
+                if (currentStore) document.getElementById('current-store-name').innerText = currentStore.name;
+                
+                const searchInput = document.getElementById('search-input');
+                if(searchInput && searchInput.value !== searchQuery) searchInput.value = searchQuery;
+                
+                renderStoreContent();
+                calculateTotal();
+            }
+            updateBudgetUI();
+        };
+
+        const updateItem = (itemId, field, value) => {
+            const idx = items.findIndex(i => i.id === itemId);
+            if(idx !== -1) { 
+                items[idx][field] = value; 
+                saveData(); 
+                
+                if(field === 'bought') { 
+                    // Animation Confetti si la catégorie entière est achetée
+                    if (value === true) {
+                        const cat = items[idx].cat;
+                        const allBought = items.filter(i => i.cat === cat).every(i => i.bought);
+                        if (allBought && typeof confetti === 'function') {
+                            confetti({
+                                particleCount: 150,
+                                spread: 70,
+                                origin: { y: 0.6 },
+                                zIndex: 10000
+                            });
+                        }
+                    }
+                    renderApp(); 
+                } 
+            }
+        };
+        
+        const updatePrice = (storeId, itemId, value) => {
+            if(!prices[storeId]) prices[storeId] = {};
+            prices[storeId][itemId] = value; saveData();
+        };
+        const updateNote = (storeId, itemId, value) => {
+            if(!notes[storeId]) notes[storeId] = {};
+            notes[storeId][itemId] = value; saveData();
+        };
+        const calculateTotal = () => {
+            if (activeTabId === 'summary') return;
+            let total = 0;
+            if (prices[activeTabId]) { Object.values(prices[activeTabId]).forEach(val => { total += parseFloat(val) || 0; }); }
+            document.getElementById('current-store-total').innerText = total.toFixed(2) + ' DH';
+        };
+
+        const addNewItem = async (catName, catClass) => {
+            const name = await showDialog('prompt', t('prompt_item'));
+            if (name && name.trim()) {
+                const newItem = { id: 'item_' + Date.now(), cat: catName, catClass, name: name.trim(), det: '', img: '', note: '', bought: false, priority: false, valise: false };
+                let insertIdx = items.length;
+                for(let i = items.length - 1; i >= 0; i--) { if(items[i].cat === catName) { insertIdx = i + 1; break; } }
+                items.splice(insertIdx, 0, newItem); saveData(); renderApp();
+            }
+        };
+        const addNewCategory = async () => {
+            const catName = await showDialog('prompt', t('prompt_cat'));
+            if (catName && catName.trim()) {
+                const itemName = await showDialog('prompt', t('prompt_item'));
+                if (itemName && itemName.trim()) {
+                    items.push({ id: 'item_' + Date.now(), cat: catName.trim(), catClass: 'cat-custom', name: itemName.trim(), det: '', img: '', note: '', bought: false, priority: false, valise: false });
+                    saveData(); renderApp();
+                }
+            }
+        };
+        const deleteItem = async (itemId) => {
+            if(await showDialog('confirm', t('alert_del_item'))) {
+                items = items.filter(i => i.id !== itemId);
+                for(let s in prices) { if(prices[s][itemId]) delete prices[s][itemId]; } for(let s in images) { if(images[s][itemId]) delete images[s][itemId]; } for(let s in notes) { if(notes[s][itemId]) delete notes[s][itemId]; }
+                saveData(); renderApp();
+            }
+        };
+
+        const addNewStore = async () => {
+            const name = await showDialog('prompt', t('prompt_store'));
+            if (name && name.trim()) {
+                const newId = 's' + Date.now();
+                stores.push({id: newId, name: name.trim()}); prices[newId] = {}; activeTabId = newId; 
+                saveData(); renderApp(); window.scrollTo(0, 0); 
+            }
+        };
+        const renameStore = async (storeId) => {
+            const store = stores.find(s => s.id === storeId);
+            if(!store) return;
+            const newName = await showDialog('prompt', t('prompt_store'), store.name);
+            if (newName && newName.trim()) { store.name = newName.trim(); saveData(); renderApp(); }
+        };
+        const deleteStore = async (storeId) => {
+            if(await showDialog('confirm', t('alert_del_store'))) {
+                stores = stores.filter(s => s.id !== storeId); delete prices[storeId]; delete images[storeId]; delete notes[storeId];
+                if(activeTabId === storeId) { activeTabId = stores.length > 0 ? stores[0].id : 'summary'; }
+                saveData(); renderApp(); window.scrollTo(0, 0); 
+            }
+        };
+
+        const openSheet = (itemId) => { currentImageTargetId = itemId; document.getElementById('image-action-sheet').classList.remove('hidden'); };
+        const closeSheet = () => { document.getElementById('image-action-sheet').classList.add('hidden'); };
+        const cancelSheet = () => { closeSheet(); currentImageTargetId = null; };
+        const triggerInput = (src) => { document.getElementById(src === 'camera' ? 'global-camera-input' : 'global-gallery-input').click(); closeSheet(); };
+        
+        const handleGlobalImage = (event) => {
+            if(!currentImageTargetId) return;
+            const file = event.target.files[0]; event.target.value = ''; if(!file) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas'); const MAX = 600;
+                    const scale = Math.min(MAX / img.width, MAX / img.height);
+                    canvas.width = img.width * scale; canvas.height = img.height * scale;
+                    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                    if(!images[activeTabId]) images[activeTabId] = {};
+                    images[activeTabId][currentImageTargetId] = canvas.toDataURL('image/jpeg', 0.6);
+                    saveData(); renderApp();
+                    currentImageTargetId = null;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+        const removeImage = async (itemId, event) => {
+            event.stopPropagation();
+            if(await showDialog('confirm', t('alert_del_img'))) { 
+                if(images[activeTabId] && images[activeTabId][itemId]) {
+                    delete images[activeTabId][itemId]; saveData(); renderApp();
+                }
+            }
+        };
+
+        const openPreviewModal = (itemId, event) => {
+            event.stopPropagation();
+            if (images[activeTabId] && images[activeTabId][itemId]) {
+                document.getElementById('preview-image-el').src = images[activeTabId][itemId];
+                document.getElementById('preview-modal').classList.add('active');
+            }
+        };
+        const closePreviewModal = () => {
+            document.getElementById('preview-modal').classList.remove('active');
+            setTimeout(() => { document.getElementById('preview-image-el').src = ''; }, 300);
+        };
+
+        const exportToExcel = () => {
+            const table = document.getElementById('summary-table');
+            const wb = XLSX.utils.table_to_book(table, {sheet: t('tab_sum')});
+            XLSX.writeFile(wb, "Comparaison_Bebe.xlsx");
+        };
+
+        const resetAllData = async () => {
+            if(await showDialog('confirm', t('alert_reset'))) {
+                localStorage.clear();
+                location.reload();
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => { 
+            applyTheme(); 
+            updateUITexts(); 
+            renderApp(); 
+        });
+    </script>
+
+    <!-- Custom Dialog / Modal -->
+    <div class="modal-overlay" id="custom-dialog-overlay" style="z-index: 1000000; align-items:center;">
+        <div class="dialog-box">
+            <div class="dialog-msg" id="dialog-msg"></div>
+            <input type="text" class="dialog-input" id="dialog-input" autocomplete="off">
+            <div class="dialog-btns">
+                <button class="dialog-btn dialog-btn-cancel" id="dialog-btn-cancel">Annuler</button>
+                <button class="dialog-btn dialog-btn-ok" id="dialog-btn-ok">OK</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
