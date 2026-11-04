@@ -359,9 +359,12 @@
 
     <div class="app-header" id="main-header">
         <div class="header-top">
-            <div class="header-title">
-                <h1 id="t_app_title">👶 Comparateur Bébé</h1>
-                <p id="t_app_subtitle">Gérez vos magasins et budget</p>
+            <div class="header-title" style="display: flex; align-items: center; gap: 10px;">
+                <img src="ld-web-logo.png" alt="Logo" style="height: 38px; width: 76px; object-fit: contain;">
+                <div>
+                    <h1 id="t_app_title" style="font-size: 19px;">Petits Jours</h1>
+                    <p id="t_app_subtitle">Gérez vos magasins et budget</p>
+                </div>
             </div>
             <div class="header-controls">
                 <button class="ctrl-btn" onclick="toggleDarkMode()" id="dark-mode-btn"><i class="fas fa-moon"></i></button>
@@ -483,7 +486,7 @@
     <script>
         const i18n = {
             fr: {
-                app_title: "👶 Petits Jours", app_subtitle: "Gérez vos magasins et budget",
+                app_title: "Petits Jours", app_subtitle: "Gérez vos magasins et budget",
                 summary_title: "📊 Résumé & Comparaison", btn_pdf: "Télécharger PDF", btn_excel: "Excel",
                 footer_total: "Total", img_source: "Source d'image?", img_cam: "Prendre une photo",
                 img_gal: "Choisir de la galerie", img_cancel: "Annuler", sync_title: "Sauvegarde & Partage 🔄",
@@ -505,7 +508,7 @@
                 signature: "Développé par papa ❤️"
             },
             ma: {
-                app_title: "👶 Petits Jours", app_subtitle: "Gad l'budget o les magasins",
+                app_title: "Petits Jours", app_subtitle: "Gad l'budget o les magasins",
                 summary_title: "📊 Kholasa o l'Mo9arana", btn_pdf: "Sajjel PDF (B tsawer)", btn_excel: "Excel (Bla tsawer)",
                 footer_total: "Lmejmou3", img_source: "Mnin tjib tswira?", img_cam: "Sewer b l'Caméra",
                 img_gal: "3zel mn l'Galerie", img_cancel: "Bllach", sync_title: "Partage o Sauvegarde 🔄",
@@ -527,7 +530,7 @@
                 signature: "Msayeb mn 3nd Papa ❤️"
             },
             en: {
-                app_title: "👶 Petits Jours", app_subtitle: "Manage stores and budget",
+                app_title: "Petits Jours", app_subtitle: "Manage stores and budget",
                 summary_title: "📊 Summary & Comparison", btn_pdf: "Download PDF", btn_excel: "Excel",
                 footer_total: "Total", img_source: "Image source?", img_cam: "Take Photo",
                 img_gal: "Choose from Gallery", img_cancel: "Cancel", sync_title: "Backup & Share 🔄",
