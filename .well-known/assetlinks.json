@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.benmhamed_badr.twa",
+        "sha256_cert_fingerprints": ["AD:A1:56:BC:E5:F8:B8:AA:6B:BE:17:DB:BC:BF:BD:3C:20:15:9D:3F:A5:67:51:E6:05:30:1F:FC:23:B1:7F:33"]
+      }
+    }]
