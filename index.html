@@ -1418,21 +1418,25 @@
     </div>
 
 <script>
-        // Robust Loading Screen Logic
-        (function() {
-            function hideSplash() {
-                const splash = document.getElementById('splash-screen');
-                if (splash && !splash.dataset.hidden) {
-                    splash.dataset.hidden = "true";
+        // Extremely Robust Splash Screen
+        document.addEventListener('DOMContentLoaded', () => {
+            const splash = document.getElementById('splash-screen');
+            if (splash) {
+                // Ensure it's visible initially
+                splash.style.display = 'flex';
+                splash.style.opacity = '1';
+                splash.style.visibility = 'visible';
+                
+                // Force it to stay for AT LEAST 1.2 seconds so it's actually seen
+                setTimeout(() => {
                     splash.style.opacity = '0';
                     splash.style.visibility = 'hidden';
-                    setTimeout(() => { if (splash.parentNode) splash.parentNode.removeChild(splash); }, 600);
-                }
+                    setTimeout(() => {
+                        if (splash.parentNode) splash.parentNode.removeChild(splash);
+                    }, 600); // Wait for transition
+                }, 1200); 
             }
-            window.addEventListener('load', () => setTimeout(hideSplash, 600));
-            // Safety fallback if resources take too long to load
-            setTimeout(hideSplash, 2500);
-        })();
+        });
 </script>
 </body>
 </html>
