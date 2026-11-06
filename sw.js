@@ -5,7 +5,8 @@ const urlsToCache = [
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
-  './ld-web-logo.png'
+  './ld-web-logo.png',
+  '/lottie.min.js'
 ];
 
 // Install Event - cache essential files
