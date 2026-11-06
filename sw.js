@@ -1,4 +1,4 @@
-const CACHE_NAME = 'petits-jours-cache-v23'; // INCREMENT THIS VERSION
+const CACHE_NAME = 'petits-jours-cache-v24'; // INCREMENT THIS VERSION
 const urlsToCache = [
   './',
   './index.html',
