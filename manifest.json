@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "Petits Jours - Comparateur Bébé",
-  "short_name": "Petits Jours",
+  "name": "LittleDays",
+  "short_name": "LittleDays",
   "description": "Application pour gérer les achats, la valise de maternité et le budget de bébé.",
   "start_url": "./",
   "display": "standalone",
