@@ -359,9 +359,11 @@
         }
 
        .splash-logo-img {
-            height: 65px;
+            height: 75px;
             object-fit: contain;
-            margin-top: -10px; /* Bach n9rbo chwia l'logo l'animation */
+            margin-top: -45px; /* Hna kbrna r9m (-45px) bach i9reb kter l'animation */
+            position: relative; 
+            z-index: 10; /* Bach maytkhbbach wra l'animation ila tl3 bzaf */
             animation: fadeIn 1s ease-in-out;
         }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
