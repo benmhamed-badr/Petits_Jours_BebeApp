@@ -358,13 +358,13 @@
             height: 250px;
         }
 
-        .splash-logo-text {
-            font-family: 'Fredoka', sans-serif;
-            font-size: 1.5rem;
-            color: #333333;
-            margin: 0;
-            font-weight: 700;
+       .splash-logo-img {
+            height: 65px;
+            object-fit: contain;
+            margin-top: -10px; /* Bach n9rbo chwia l'logo l'animation */
+            animation: fadeIn 1s ease-in-out;
         }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         /* ------------------------------------- */
     </style>
     <link rel="manifest" href="manifest.json">
@@ -388,7 +388,7 @@
     <!-- Loading Splash Screen M3del -->
     <div id="splash-screen">
         <div id="lottie-splash-container"></div>
-        <h1 class="splash-logo-text">Petits Jours</h1>
+        <img src="ld-web-logo.png" alt="Petits Jours Logo" class="splash-logo-img">
     </div>
 
     <!-- Lottie JSON Data -->
@@ -1418,36 +1418,41 @@
 <script>
         // Lottie Animation & Robust Splash Screen Logic
         document.addEventListener('DOMContentLoaded', () => {
-            
-            // 1. Tkhdem l'Animation Lottie mnin tlqa JSON
             const lottieJsonElement = document.getElementById('lottie-json');
-            if (lottieJsonElement && lottieJsonElement.textContent.trim().startsWith('{')) {
-                try {
-                    const lottieData = JSON.parse(lottieJsonElement.textContent);
-                    lottie.loadAnimation({
-                        container: document.getElementById('lottie-splash-container'),
-                        renderer: 'svg',
-                        loop: true,
-                        autoplay: true,
-                        animationData: lottieData
-                    });
-                } catch(e) { console.error("Lottie Error:", e); }
-            }
-
-            // 2. Tkhffi Splash Screen mn b3d 1.5 thanya (bach tban l'animation l wa7d lweqt)
             const splash = document.getElementById('splash-screen');
-            if (splash) {
-                splash.style.display = 'flex';
-                splash.style.opacity = '1';
-                splash.style.visibility = 'visible';
-                
-                setTimeout(() => {
+
+            // Fonction bach nkhbbiw loading screen b chwiya
+            const hideSplashScreen = () => {
+                if (splash) {
                     splash.style.opacity = '0';
                     splash.style.visibility = 'hidden';
                     setTimeout(() => {
                         if (splash.parentNode) splash.parentNode.removeChild(splash);
                     }, 600); // Tsnna transition dkhla tfout
-                }, 1500); 
+                }
+            };
+
+            if (lottieJsonElement && lottieJsonElement.textContent.trim().startsWith('{')) {
+                try {
+                    const lottieData = JSON.parse(lottieJsonElement.textContent);
+                    const anim = lottie.loadAnimation({
+                        container: document.getElementById('lottie-splash-container'),
+                        renderer: 'svg',
+                        loop: false, // Hna 7iydna loop bach tl3eb mra whda kamla
+                        autoplay: true,
+                        animationData: lottieData
+                    });
+
+                    // 🔴 Hna fin kantsnnaw l'animation hta tsali (complete) 3ad nkhbbiw l'ecran
+                    anim.addEventListener('complete', () => {
+                        hideSplashScreen();
+                    });
+                } catch(e) { 
+                    console.error("Lottie Error:", e); 
+                    setTimeout(hideSplashScreen, 2000); // Plan B ila kan mochkil f JSON
+                }
+            } else {
+                setTimeout(hideSplashScreen, 2000); // Plan B
             }
         });
 </script>
