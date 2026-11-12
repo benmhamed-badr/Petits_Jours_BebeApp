@@ -1294,9 +1294,14 @@
             const name = await showDialog('prompt', t('prompt_item'));
             if (name && name.trim()) {
                 const newItem = { id: 'item_' + Date.now(), cat: catName, catClass, name: name.trim(), det: '', img: '', note: '', bought: false, priority: false, valise: false };
-                let insertIdx = items.length;
-                for(let i = items.length - 1; i >= 0; i--) { if(items[i].cat === catName) { insertIdx = i + 1; break; } }
-                items.splice(insertIdx, 0, newItem); saveData(); renderApp();
+                
+                // هنا التغيير: كنقلبو على أول أرتيكل فهاد الكاتيڭوري باش نحطو الجديد فوق منو
+                let insertIdx = items.findIndex(i => i.cat === catName);
+                if(insertIdx === -1) insertIdx = items.length; // يلا كانت كاتيڭوري جديدة خاوية
+                
+                items.splice(insertIdx, 0, newItem); 
+                saveData(); 
+                renderApp();
             }
         };
         const addNewCategory = async () => {
