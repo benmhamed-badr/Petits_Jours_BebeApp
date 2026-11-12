@@ -444,6 +444,15 @@
         <button class="filter-btn" id="btn-filter-valise" onclick="setFilter('valise')">Valise 🧳</button>
     </div>
 
+    <!-- زر الترتيب -->
+    <div style="max-width: 800px; margin: 10px auto 0 auto; padding: 0 15px; display: flex; justify-content: flex-end;">
+        <select id="sort-select" onchange="handleSort(this.value)" style="padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); font-size: 12px; font-weight: bold; outline: none; cursor: pointer;">
+            <option value="default">↕️ الترتيب الافتراضي (Par défaut)</option>
+            <option value="name">🔤 السمية (A - Z)</option>
+            <option value="price_asc">💶 الثمن (الرخيص للغالي)</option>
+            <option value="price_desc">💶 الثمن (الغالي للرخيص)</option>
+        </select>
+    </div>
     <div class="content" id="main-content"></div>
     
     <div class="content hidden" id="summary-content">
@@ -647,7 +656,12 @@
         let draggedItemId = null; 
         let searchQuery = ''; 
         let currentFilter = 'all';
+        let currentSort = 'default';
 
+        const handleSort = (val) => {
+            currentSort = val;
+            renderStoreContent();
+        };
         
         const showDialog = (type, message, defaultVal = '') => {
             return new Promise((resolve) => {
@@ -1024,6 +1038,21 @@
                 return matchSearch && matchFilter;
             });
 
+
+            // ترتيب ليزارتيكل مع الحفاظ على الكاتيڭوريات
+            const catOrder = [...new Set(items.map(i => i.cat))];
+            filteredItems.sort((a, b) => {
+                if (a.cat !== b.cat) return catOrder.indexOf(a.cat) - catOrder.indexOf(b.cat);
+                
+                if (currentSort === 'name') return a.name.localeCompare(b.name);
+                if (currentSort === 'price_asc' || currentSort === 'price_desc') {
+                    let pA = parseFloat((prices[activeTabId] && prices[activeTabId][a.id]) || 0);
+                    let pB = parseFloat((prices[activeTabId] && prices[activeTabId][b.id]) || 0);
+                    return currentSort === 'price_asc' ? pA - pB : pB - pA;
+                }
+                return items.indexOf(a) - items.indexOf(b); // الترتيب الافتراضي
+            });
+            
             if(filteredItems.length === 0) {
                 container.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--text-muted); font-style:italic;">${t('no_items')}</div>`;
             }
@@ -1037,7 +1066,7 @@
                     // Désactiver le bouton Drag si on recherche ou on filtre (pour éviter les bugs d'index)
                     const isDragMode = dragModeCategory === currentCat;
                     const safeCat = currentCat.replace(/'/g, "\\'"); 
-                    const dragBtnHTML = (searchQuery === '' && currentFilter === 'all') ? `
+                    const dragBtnHTML = (searchQuery === '' && currentFilter === 'all' && currentSort === 'default') ? `
                         <button class="btn-icon-only" onclick="toggleDragMode('${safeCat}')" style="${isDragMode ? 'background: var(--primary); color: white;' : ''}" title="${t('tooltip_drag')}">
                             <i class="fas fa-arrows-alt-v"></i>
                         </button>
@@ -1058,7 +1087,7 @@
                 const itemPrice = (prices[activeTabId] && prices[activeTabId][item.id]) ? prices[activeTabId][item.id] : '';
                 const itemImg = (images[activeTabId] && images[activeTabId][item.id]) ? images[activeTabId][item.id] : '';
                 
-                const isItemDragMode = dragModeCategory === item.cat && searchQuery === '' && currentFilter === 'all';
+                const isItemDragMode = dragModeCategory === item.cat && searchQuery === '' && currentFilter === 'all' && currentSort === 'default';
                 const card = document.createElement('div');
                 card.className = `card ${item.bought ? 'is-bought' : ''} ${isItemDragMode ? 'draggable' : ''}`;
                 
