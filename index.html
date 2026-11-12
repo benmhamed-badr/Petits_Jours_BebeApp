@@ -226,6 +226,9 @@
         .btn-priority:hover { transform: scale(1.1); }
         .btn-priority.active { color: #F1C40F; text-shadow: 0 0 5px rgba(241, 196, 15, 0.4); }
 
+
+        .btn-duplicate-item { color: var(--primary); opacity: 0.6; cursor: pointer; padding: 5px; transition: 0.2s; }
+        .btn-duplicate-item:hover { opacity: 1; transform: scale(1.1); }
         .btn-delete-item { color: var(--danger); opacity: 0.5; cursor: pointer; padding: 5px; transition: 0.2s; }
         .btn-delete-item:hover { opacity: 1; }
 
@@ -1074,10 +1077,11 @@
                 card.innerHTML = `
                     <!-- Ligne 1 : Info principale -->
                     <div class="card-row-top">
-                        ${dragHandle}
-                        <input type="checkbox" class="bought-check" ${item.bought ? 'checked' : ''} onchange="updateItem('${item.id}', 'bought', this.checked)">
-                        <input type="text" class="edit-name" value="${item.name.replace(/"/g, '&quot;')}" placeholder="${t('placeholder_name')}" onchange="updateItem('${item.id}', 'name', this.value)">
-                        <i class="fas fa-trash-alt btn-delete-item" onclick="deleteItem('${item.id}')"></i>
+                    ${dragHandle}
+                    <input type="checkbox" class="bought-check" ${item.bought ? 'checked' : ''} onchange="updateItem('${item.id}', 'bought', this.checked)">
+                    <input type="text" class="edit-name" value="${item.name.replace(/"/g, '&quot;')}" placeholder="${t('placeholder_name')}" onchange="updateItem('${item.id}', 'name', this.value)">
+                    <i class="fas fa-copy btn-duplicate-item" onclick="duplicateItem('${item.id}')"></i>
+                    <i class="fas fa-trash-alt btn-delete-item" onclick="deleteItem('${item.id}')"></i>
                     </div>
                     
                     <!-- Ligne 2 : Détails & Image -->
@@ -1314,6 +1318,37 @@
                 }
             }
         };
+        
+        const duplicateItem = (itemId) => {
+            const index = items.findIndex(i => i.id === itemId);
+            if(index !== -1) {
+                const original = items[index];
+                
+                // هنا كنصايبو السمية الجديدة بالرقم
+                let newName = original.name.trim();
+                const match = newName.match(/\s\((\d+)\)$/);
+                if (match) {
+                    const num = parseInt(match[1]) + 1;
+                    newName = newName.replace(/\s\(\d+\)$/, ` (${num})`);
+                } else {
+                    newName = `${newName} (2)`;
+                }
+
+                // كنصايبو الأرتيكل الجديد وكنردوه مامشريش (bought: false)
+                const newItem = {
+                    ...original,
+                    id: 'item_' + Date.now(),
+                    name: newName,
+                    bought: false
+                };
+                
+                // كنزيدوه مباشرة تحت الأرتيكل الأصلي
+                items.splice(index + 1, 0, newItem);
+                saveData();
+                renderApp();
+            }
+        };
+        
         const deleteItem = async (itemId) => {
             if(await showDialog('confirm', t('alert_del_item'))) {
                 items = items.filter(i => i.id !== itemId);
