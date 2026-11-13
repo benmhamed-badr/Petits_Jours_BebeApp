@@ -194,6 +194,34 @@
         .btn-add-item:hover { background: rgba(0,0,0,0.2); }
 
         .card { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid var(--border); transition: background 0.3s, border 0.3s, opacity 0.3s; position: relative; display: flex; flex-direction: column; gap: 12px; }
+
+
+
+
+        /* Keep the card with the open size dropdown above neighboring cards */
+.card {
+    z-index: 1;
+}
+
+.card.size-dropdown-card-open {
+    z-index: 1000 !important;
+    position: relative;
+}
+
+/* Keep the dropdown menu above all content inside its active card */
+.size-dropdown-wrapper {
+    z-index: 1001;
+}
+
+.size-dropdown-menu {
+    z-index: 1002;
+}
+
+
+        
+
+
+        
         .card.is-bought { opacity: 0.65; border-left: 4px solid var(--success); }
         
         .card-row-top { display: flex; align-items: center; gap: 10px; }
@@ -1675,7 +1703,6 @@ const sizeDropdownHTML = showSizeDropdown ? `
 
 
                 // --- CUSTOM BABY SIZE DROPDOWN ---
-
         window.toggleSizeMenu = function(itemId, event) {
             if (event) event.stopPropagation();
 
@@ -1686,7 +1713,7 @@ const sizeDropdownHTML = showSizeDropdown ? `
 
             const shouldOpen = targetMenu.hidden;
 
-            // Close all other size dropdowns first
+            // Close all other dropdowns and reset their card layers
             document.querySelectorAll('.size-dropdown-menu').forEach(menu => {
                 menu.hidden = true;
             });
@@ -1695,9 +1722,20 @@ const sizeDropdownHTML = showSizeDropdown ? `
                 button.setAttribute('aria-expanded', 'false');
             });
 
+            document.querySelectorAll('.card.size-dropdown-card-open').forEach(card => {
+                card.classList.remove('size-dropdown-card-open');
+            });
+
             if (shouldOpen) {
                 targetMenu.hidden = false;
                 targetTrigger.setAttribute('aria-expanded', 'true');
+
+                // Bring only the active card above the neighboring cards
+                const activeCard = targetTrigger.closest('.card');
+
+                if (activeCard) {
+                    activeCard.classList.add('size-dropdown-card-open');
+                }
             }
         };
 
@@ -1766,7 +1804,12 @@ const sizeDropdownHTML = showSizeDropdown ? `
             document.querySelectorAll('.size-dropdown-trigger').forEach(button => {
                 button.setAttribute('aria-expanded', 'false');
             });
+
+            document.querySelectorAll('.card.size-dropdown-card-open').forEach(card => {
+                card.classList.remove('size-dropdown-card-open');
+            });
         });
+        
 
         // Close dropdowns with Escape key
         document.addEventListener('keydown', function(event) {
@@ -1778,6 +1821,10 @@ const sizeDropdownHTML = showSizeDropdown ? `
 
             document.querySelectorAll('.size-dropdown-trigger').forEach(button => {
                 button.setAttribute('aria-expanded', 'false');
+            });
+
+            document.querySelectorAll('.card.size-dropdown-card-open').forEach(card => {
+                card.classList.remove('size-dropdown-card-open');
             });
         });
 
