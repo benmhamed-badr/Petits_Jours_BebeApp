@@ -371,6 +371,20 @@
         }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         /* ------------------------------------- */
+
+        /* إخفاء خط السكرول من الفيلترات */
+        #filters-wrapper, 
+        #filters-wrapper * {
+            -ms-overflow-style: none;  /* بالنسبة لـ Internet Explorer و Edge */
+            scrollbar-width: none;  /* بالنسبة لـ Firefox */
+        }
+
+        #filters-wrapper::-webkit-scrollbar, 
+        #filters-wrapper *::-webkit-scrollbar {
+            display: none; /* بالنسبة لـ Chrome و Safari */
+        }
+
+        
     </style>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -451,15 +465,7 @@
         </button>
     </div>
 
-    <!-- زر الترتيب -->
-    <div style="max-width: 800px; margin: 10px auto 0 auto; padding: 0 15px; display: flex; justify-content: flex-end;">
-        <select id="sort-select" onchange="handleSort(this.value)" style="padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); font-size: 12px; font-weight: bold; outline: none; cursor: pointer;">
-            <option value="default">↕️ الترتيب الافتراضي (Par défaut)</option>
-            <option value="name">🔤 السمية (A - Z)</option>
-            <option value="price_asc">💶 الثمن (الرخيص للغالي)</option>
-            <option value="price_desc">💶 الثمن (الغالي للرخيص)</option>
-        </select>
-    </div>
+    
     <div class="content" id="main-content"></div>
     
     <div class="content hidden" id="summary-content">
