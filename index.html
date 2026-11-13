@@ -1112,9 +1112,9 @@
                     const isDragMode = dragModeCategory === currentCat;
                     const safeCat = currentCat.replace(/'/g, "\\'"); 
                     const dragBtnHTML = (searchQuery === '' && currentFilter === 'all' && currentSort === 'default') ? `
-                        <button class="btn-icon-only" onclick="toggleDragMode('${safeCat}')" style="${isDragMode ? 'background: var(--primary); color: white;' : ''}" title="${t('tooltip_drag')}">
-                            <i class="fas fa-arrows-alt-v"></i>
-                        </button>
+                    <button class="btn-icon-only" onclick="event.stopPropagation(); toggleDragMode('${safeCat}')" style="${isDragMode ? 'background: var(--primary); color: white;' : ''}" title="${t('tooltip_drag')}">
+                    <i class="fas fa-arrows-alt-v"></i>
+                    </button>
                     ` : '';
                     
                     header.innerHTML = `
@@ -1571,6 +1571,31 @@
                 setTimeout(hideSplashScreen, 2000); // Plan B
             }
         });
+
+
+
+
+    
+    function toggleCategory(categoryId, iconElement) {
+    // كنجبدو البلاصة اللي مجمعين فيها العناصر ديال هاد الكاتيڭوري
+    const itemsContainer = document.getElementById(categoryId);
+    
+    if (!itemsContainer) return; // باش مايتبلونطاش الكود إيلا مالقاش الكونتينر
+
+    // إيلا كانت مخفية، كنبينوها ونرد السهم كيشوف لتحت
+    if (itemsContainer.style.display === "none") {
+        itemsContainer.style.display = ""; 
+        iconElement.innerHTML = "🔽"; 
+    } 
+    // إيلا كانت باينة، كنخفيوها ونرد السهم للجنب
+    else {
+        itemsContainer.style.display = "none";
+        iconElement.innerHTML = "◀️"; 
+    }
+}
+
+
+    
 </script>
 </body>
 </html>
