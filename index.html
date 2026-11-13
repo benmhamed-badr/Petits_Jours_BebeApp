@@ -1102,7 +1102,10 @@
                 container.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--text-muted); font-style:italic;">${t('no_items')}</div>`;
             }
 
-            filteredItems.forEach((item) => {
+filteredItems.forEach((item) => {
+                // 1. Nsaybo ID w class n9i l la catégorie (b7al cat_V_tements wla dakchi li f catClass)
+                let catId = 'cat_' + item.cat.replace(/[^a-zA-Z0-9]/g, '_');
+
                 if (item.cat !== currentCat) {
                     currentCat = item.cat;
                     const header = document.createElement('div');
@@ -1117,9 +1120,10 @@
                     </button>
                     ` : '';
                     
+                    // 2. Hna zedna l'icone d sahm m3a ID dyalo w la fonction toggleCategory
                     header.innerHTML = `
                      <span style="display: flex; align-items: center; gap: 8px;">
-                     <i class="fas fa-chevron-down" onclick="toggleCategory('${item.catClass}', this)" style="cursor: pointer; transition: 0.3s; padding: 5px;"></i>
+                     <i class="fas fa-chevron-down" id="arrow-${catId}" onclick="toggleCategory('${catId}', this)" style="cursor: pointer; transition: 0.3s; padding: 5px;"></i>
                      ${currentCat}
                      </span>
                         <div class="btn-header-group">
@@ -1137,7 +1141,9 @@
                 
                 const isItemDragMode = dragModeCategory === item.cat && searchQuery === '' && currentFilter === 'all' && currentSort === 'default';
                 const card = document.createElement('div');
-                card.className = `card ${item.bought ? 'is-bought' : ''} ${isItemDragMode ? 'draggable' : ''}`;
+                
+                // 3. Hna zedna ${catId} m3a les classes l9dam dyal la carte (card)
+                card.className = `card ${item.bought ? 'is-bought' : ''} ${isItemDragMode ? 'draggable' : ''} ${catId}`;
                 
                 if (isItemDragMode) {
                     card.setAttribute('ondragenter', `handleDragEnter(event, this)`);
@@ -1194,6 +1200,11 @@
                 container.appendChild(card);
             });
 
+     // hadchi to re-check ! ^up^ 
+
+
+
+            
             if(searchQuery === '' && currentFilter === 'all') {
                 const addCatDiv = document.createElement('div');
                 addCatDiv.style.textAlign = 'center'; addCatDiv.style.marginTop = '20px';
@@ -1577,26 +1588,31 @@
 
 
 
+// Fonction bach tbiyen w tkhbe3 la catégorie
+        window.toggleCategory = function(catId) {
+            // kanjibo ga3 les articles (cards) li 3ndhom l'class dyal had la catégorie
+            let cards = document.querySelectorAll('.' + catId);
+            let arrow = document.getElementById('arrow-' + catId);
+            
+            if (cards.length > 0) {
+                // nchofo l'7ala dyal awel article
+                let isHidden = cards[0].style.display === "none";
+                
+                cards.forEach(card => {
+                    // Mli nrj3ohom nsta3mlo 'flex' hit l'css dyalek mkhdm display flex f les cards
+                    card.style.display = isHidden ? "flex" : "none";
+                });
+                
+                // Ndewro sahm
+                if (arrow) {
+                    arrow.style.transform = isHidden ? "rotate(0deg)" : "rotate(180deg)";
+                }
+            }
+        };
 
-    function toggleCategory(catClass, iconElement) {
-    // كنجبدو ڭاع العناصر لي تابعين لهاد الكاتيڭوري (تأكد بلي الكلاس د العناصر ديالك سميتو .item-row)
-    const items = document.querySelectorAll('.item-row.' + catClass); 
 
-    items.forEach(item => {
-        if (item.style.display === 'none') {
-            item.style.display = ''; // رجعو يبان
-        } else {
-            item.style.display = 'none'; // خبّيه
-        }
-    });
+    
 
-    // أنيميشن بسيطة باش السهم يدور للجنب ملي تخبى اللائحة
-    if (iconElement.style.transform === 'rotate(-90deg)') {
-        iconElement.style.transform = 'rotate(0deg)';
-    } else {
-        iconElement.style.transform = 'rotate(-90deg)';
-    }
-}
 
 
     
