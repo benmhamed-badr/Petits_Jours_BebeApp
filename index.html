@@ -1118,7 +1118,10 @@
                     ` : '';
                     
                     header.innerHTML = `
-                        <span>${currentCat}</span>
+                     <span style="display: flex; align-items: center; gap: 8px;">
+                     <i class="fas fa-chevron-down" onclick="toggleCategory('${item.catClass}', this)" style="cursor: pointer; transition: 0.3s; padding: 5px;"></i>
+                     ${currentCat}
+                     </span>
                         <div class="btn-header-group">
                             ${dragBtnHTML}
                             <button class="btn-icon-only" onclick="addNewItem('${safeCat}', '${item.catClass}')" title="${t('tooltip_add')}">
@@ -1575,22 +1578,23 @@
 
 
 
-    
-    function toggleCategory(categoryId, iconElement) {
-    // كنجبدو البلاصة اللي مجمعين فيها العناصر ديال هاد الكاتيڭوري
-    const itemsContainer = document.getElementById(categoryId);
-    
-    if (!itemsContainer) return; // باش مايتبلونطاش الكود إيلا مالقاش الكونتينر
+    function toggleCategory(catClass, iconElement) {
+    // كنجبدو ڭاع العناصر لي تابعين لهاد الكاتيڭوري (تأكد بلي الكلاس د العناصر ديالك سميتو .item-row)
+    const items = document.querySelectorAll('.item-row.' + catClass); 
 
-    // إيلا كانت مخفية، كنبينوها ونرد السهم كيشوف لتحت
-    if (itemsContainer.style.display === "none") {
-        itemsContainer.style.display = ""; 
-        iconElement.innerHTML = "🔽"; 
-    } 
-    // إيلا كانت باينة، كنخفيوها ونرد السهم للجنب
-    else {
-        itemsContainer.style.display = "none";
-        iconElement.innerHTML = "◀️"; 
+    items.forEach(item => {
+        if (item.style.display === 'none') {
+            item.style.display = ''; // رجعو يبان
+        } else {
+            item.style.display = 'none'; // خبّيه
+        }
+    });
+
+    // أنيميشن بسيطة باش السهم يدور للجنب ملي تخبى اللائحة
+    if (iconElement.style.transform === 'rotate(-90deg)') {
+        iconElement.style.transform = 'rotate(0deg)';
+    } else {
+        iconElement.style.transform = 'rotate(-90deg)';
     }
 }
 
