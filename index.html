@@ -435,13 +435,20 @@
         <input type="text" id="search-input" oninput="handleSearch(this.value)">
     </div>
 
-    <!-- Filtres Rapides -->
-    <div class="filters-wrapper hidden" id="filters-wrapper">
-        <button class="filter-btn active" id="btn-filter-all" onclick="setFilter('all')">Tout</button>
-        <button class="filter-btn" id="btn-filter-todo" onclick="setFilter('todo')">À acheter</button>
-        <button class="filter-btn" id="btn-filter-bought" onclick="setFilter('bought')">Achetés ✅</button>
-        <button class="filter-btn" id="btn-filter-prio" onclick="setFilter('prio')">Priorité ⭐</button>
-        <button class="filter-btn" id="btn-filter-valise" onclick="setFilter('valise')">Valise 🧳</button>
+   <!-- Filtres Rapides & الزر ديال الترتيب -->
+    <div class="filters-wrapper hidden" id="filters-wrapper" style="display: flex; align-items: center; padding: 10px; gap: 10px; overflow: visible;">
+        <!-- ليستة ديال الفيلتر اللي كتسلايدي -->
+        <div style="flex: 1; overflow-x: auto; display: flex; gap: 10px; padding-bottom: 5px;">
+            <button class="filter-btn active" id="btn-filter-all" onclick="setFilter('all')">Tout</button>
+            <button class="filter-btn" id="btn-filter-todo" onclick="setFilter('todo')">À acheter</button>
+            <button class="filter-btn" id="btn-filter-bought" onclick="setFilter('bought')">Achetés ✅</button>
+            <button class="filter-btn" id="btn-filter-prio" onclick="setFilter('prio')">Priorité ⭐</button>
+            <button class="filter-btn" id="btn-filter-valise" onclick="setFilter('valise')">Valise 🧳</button>
+        </div>
+        <!-- بوطونة ديال الترتيب ثابتة فاليمين بنفس الديزاين -->
+        <button class="filter-btn" id="btn-sort-main" onclick="openSortSheet()" style="flex-shrink: 0; border: 1.5px solid var(--primary); color: var(--primary); background: transparent; padding: 8px 14px; margin-bottom: 5px;">
+            <i class="fas fa-sort-amount-down"></i>
+        </button>
     </div>
 
     <!-- زر الترتيب -->
@@ -496,6 +503,20 @@
         <div class="total-value" id="current-store-total">0.00 DH</div>
     </div>
 
+    <div id="sort-action-sheet" class="hidden">
+        <div class="sheet-overlay" onclick="closeSortSheet()"></div>
+        <div class="sheet-content-wrapper">
+            <h3 class="modal-title" style="margin-bottom:20px;">ترتيب حسب / Trier par</h3>
+            <button class="sheet-btn" style="text-align: left; background: var(--input-bg); margin-bottom: 8px; border-radius: 8px; font-weight: bold;" onclick="handleSort('default')">↕️ الترتيب الافتراضي (Par défaut)</button>
+            <button class="sheet-btn" style="text-align: left; background: var(--input-bg); margin-bottom: 8px; border-radius: 8px; font-weight: bold;" onclick="handleSort('name')">🔤 السمية (A - Z)</button>
+            <button class="sheet-btn" style="text-align: left; background: var(--input-bg); margin-bottom: 8px; border-radius: 8px; font-weight: bold;" onclick="handleSort('price_asc')">💶 الثمن (الرخيص للغالي)</button>
+            <button class="sheet-btn" style="text-align: left; background: var(--input-bg); margin-bottom: 8px; border-radius: 8px; font-weight: bold;" onclick="handleSort('price_desc')">💶 الثمن (الغالي للرخيص)</button>
+            <button class="sheet-btn sheet-btn-cancel" onclick="closeSortSheet()" style="margin-top: 10px;">
+                <i class="fas fa-times"></i> إلغاء / Annuler
+            </button>
+        </div>
+    </div>
+    
     <!-- Modals & Action Sheets... -->
     <div id="image-action-sheet" class="hidden">
         <div class="sheet-overlay" onclick="cancelSheet()"></div>
@@ -658,9 +679,27 @@
         let currentFilter = 'all';
         let currentSort = 'default';
 
+        // دوال باش نحلو ونسدو النافذة ديال الترتيب
+        const openSortSheet = () => document.getElementById('sort-action-sheet').classList.remove('hidden');
+        const closeSortSheet = () => document.getElementById('sort-action-sheet').classList.add('hidden');
+
         const handleSort = (val) => {
             currentSort = val;
-            renderStoreContent();
+            
+            // هنا غادي نبدلو اللون ديال البوطونة إيلا الكليان رتب بشي حاجة (باش يبان ليه راه مأكتيفي)
+            const sortBtn = document.getElementById('btn-sort-main');
+            if(sortBtn) {
+                if(val === 'default') {
+                    sortBtn.style.background = 'transparent';
+                    sortBtn.style.color = 'var(--primary)';
+                } else {
+                    sortBtn.style.background = 'var(--primary)';
+                    sortBtn.style.color = 'white';
+                }
+            }
+            
+            closeSortSheet(); // كنسدو النافذة
+            renderStoreContent(); // كنرتبو ليزارتيكل
         };
         
         const showDialog = (type, message, defaultVal = '') => {
