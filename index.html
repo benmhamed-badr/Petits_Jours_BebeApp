@@ -243,40 +243,218 @@
 
 
         
-/* Force Custom Dropdown Design */
-        select.custom-size-dropdown {
-            appearance: none !important;
-            -webkit-appearance: none !important;
-            -moz-appearance: none !important;
-            width: 100%;
-            margin-bottom: 8px;
-            background-color: var(--input-bg) !important;
-            border: 1px solid var(--border) !important;
-            padding: 10px 12px;
-            border-radius: 8px;
-            color: var(--text-main);
-            font-size: 13px;
-            font-weight: 600;
-            font-family: inherit;
-            cursor: pointer;
-            outline: none;
-            transition: all 0.3s ease;
-            /* السهم باللون الأحمر اللي كتخدم بيه */
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="%23D8382B" d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"/></svg>') !important;
-            background-repeat: no-repeat !important;
-            background-position: calc(100% - 12px) center !important;
-            background-size: 12px !important;
-        }
-        select.custom-size-dropdown:focus {
-            border-color: #D8382B !important;
-            box-shadow: 0 0 0 2px rgba(216, 56, 43, 0.2) !important;
-        }
-        body.dark-mode select.custom-size-dropdown {
-            /* السهم باللون الأبيض فـ Dark Mode */
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="%23FFFFFF" d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"/></svg>') !important;
-            background-color: #1D1D1D !important; /* اللون الغامق المفضل عندك */
-            border-color: #333 !important;
-        }
+/* --- LittleDays Premium Custom Baby Size Dropdown --- */
+
+.size-dropdown-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 8px;
+    z-index: 20;
+}
+
+.size-dropdown-trigger {
+    width: 100%;
+    min-height: 43px;
+    padding: 10px 13px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    background: var(--input-bg);
+    color: var(--text-main);
+    border: 1.5px solid var(--border);
+    border-radius: 11px;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: left;
+
+    cursor: pointer;
+    outline: none;
+    transition: background 0.2s ease,
+                border-color 0.2s ease,
+                box-shadow 0.2s ease,
+                transform 0.2s ease;
+}
+
+.size-dropdown-trigger:hover {
+    border-color: var(--primary);
+    background: rgba(47, 117, 181, 0.06);
+}
+
+.size-dropdown-trigger:focus-visible {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(47, 117, 181, 0.17);
+}
+
+.size-dropdown-trigger[aria-expanded="true"] {
+    border-color: var(--primary);
+    border-radius: 11px;
+    box-shadow: 0 0 0 3px rgba(47, 117, 181, 0.10);
+}
+
+.size-dropdown-current {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+}
+
+.size-dropdown-current i {
+    color: var(--primary);
+    font-size: 15px;
+}
+
+.size-dropdown-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.size-dropdown-placeholder {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.size-dropdown-arrow {
+    color: var(--primary);
+    font-size: 12px;
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+}
+
+.size-dropdown-trigger[aria-expanded="true"] .size-dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+/* Custom options panel */
+.size-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 7px);
+    left: 0;
+    right: 0;
+    z-index: 9999;
+
+    padding: 7px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+
+    opacity: 1;
+    transform: translateY(0);
+    animation: sizeDropdownOpen 0.18s ease;
+}
+
+.size-dropdown-menu[hidden] {
+    display: none !important;
+}
+
+@keyframes sizeDropdownOpen {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Individual size options */
+.size-dropdown-option {
+    width: 100%;
+    min-height: 40px;
+    padding: 9px 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+
+    cursor: pointer;
+    transition: background 0.18s ease,
+                color 0.18s ease;
+}
+
+.size-dropdown-option:hover,
+.size-dropdown-option:focus-visible {
+    background: rgba(47, 117, 181, 0.10);
+    color: var(--primary);
+    outline: none;
+}
+
+.size-dropdown-option.active {
+    background: rgba(47, 117, 181, 0.12);
+    color: var(--primary);
+    font-weight: 800;
+}
+
+.size-dropdown-option i {
+    color: var(--primary);
+    font-size: 12px;
+}
+
+.size-dropdown-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 5px 4px;
+}
+
+/* Dark mode */
+body.dark-mode .size-dropdown-trigger {
+    background: var(--input-bg);
+    border-color: var(--border);
+}
+
+body.dark-mode .size-dropdown-trigger:hover,
+body.dark-mode .size-dropdown-trigger[aria-expanded="true"] {
+    background: rgba(52, 152, 219, 0.10);
+    border-color: var(--primary);
+}
+
+body.dark-mode .size-dropdown-menu {
+    background: #202A35;
+    border-color: #354454;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.40);
+}
+
+body.dark-mode .size-dropdown-option:hover,
+body.dark-mode .size-dropdown-option:focus-visible,
+body.dark-mode .size-dropdown-option.active {
+    background: rgba(52, 152, 219, 0.16);
+    color: #65B8F0;
+}
+
+body.dark-mode .size-dropdown-option i {
+    color: #65B8F0;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .size-dropdown-trigger {
+        min-height: 42px;
+        font-size: 13px;
+    }
+
+    .size-dropdown-option {
+        min-height: 42px;
+        padding: 10px 12px;
+    }
+}
 
 
         
@@ -1189,17 +1367,78 @@ filteredItems.forEach((item) => {
                 const itemImg = (images[activeTabId] && images[activeTabId][item.id]) ? images[activeTabId][item.id] : '';
 
 
+    
+
 const showSizeDropdown = sizeCategories.includes(item.cat);
+const currentItemSize = item.size ?? '';
+const sizeOptions = [
+    { value: '', label: 'Taille / Âge' },
+    { value: '0M', label: '0M - Nouveau-né' },
+    { value: '3M', label: '3M - 3 mois' },
+    { value: '6M', label: '6M - 6 mois' },
+    { value: '9M', label: '9M - 9 mois' },
+    { value: '12M', label: '12M - 12 mois' }
+];
+
+const selectedSizeOption = sizeOptions.find(
+    option => option.value === currentItemSize
+) || sizeOptions[0];
+
+const sizeDropdownOptionsHTML = sizeOptions.map((option, index) => `
+    ${index === 1 ? '<div class="size-dropdown-divider"></div>' : ''}
+    <button
+        type="button"
+        class="size-dropdown-option ${currentItemSize === option.value ? 'active' : ''}"
+        role="option"
+        aria-selected="${currentItemSize === option.value}"
+        onclick="selectItemSize('${item.id}', '${option.value}', event)"
+    >
+        <span>${option.label}</span>
+        ${currentItemSize === option.value
+            ? '<i class="fas fa-check"></i>'
+            : ''}
+    </button>
+`).join('');
+
 const sizeDropdownHTML = showSizeDropdown ? `
-    <select class="custom-size-dropdown" onchange="updateItem('${item.id}', 'size', this.value)">
-        <option value="" ${!item.size ? 'selected' : ''}>-- Taille / Âge --</option>
-        <option value="0M" ${item.size === '0M' ? 'selected' : ''}>0M</option>
-        <option value="3M" ${item.size === '3M' ? 'selected' : ''}>3M</option>
-        <option value="6M" ${item.size === '6M' ? 'selected' : ''}>6M</option>
-        <option value="9M" ${item.size === '9M' ? 'selected' : ''}>9M</option>
-        <option value="12M" ${item.size === '12M' ? 'selected' : ''}>12M</option>
-    </select>
+    <div class="size-dropdown-wrapper">
+
+        <button
+            type="button"
+            class="size-dropdown-trigger"
+            id="size-trigger-${item.id}"
+            aria-haspopup="listbox"
+            aria-expanded="false"
+            aria-controls="size-menu-${item.id}"
+            onclick="toggleSizeMenu('${item.id}', event)"
+        >
+            <span class="size-dropdown-current">
+                <i class="fas fa-ruler-combined"></i>
+
+                <span class="size-dropdown-value ${currentItemSize ? '' : 'size-dropdown-placeholder'}">
+                    ${selectedSizeOption.label}
+                </span>
+            </span>
+
+            <i class="fas fa-chevron-down size-dropdown-arrow"></i>
+        </button>
+
+        <div
+            class="size-dropdown-menu"
+            id="size-menu-${item.id}"
+            role="listbox"
+            aria-label="Choisir la taille"
+            hidden
+        >
+            ${sizeDropdownOptionsHTML}
+        </div>
+
+    </div>
 ` : '';
+
+
+
+    
     
                 const isItemDragMode = dragModeCategory === item.cat && searchQuery === '' && currentFilter === 'all' && currentSort === 'default';
                 const card = document.createElement('div');
@@ -1429,6 +1668,122 @@ const sizeDropdownHTML = showSizeDropdown ? `
                 } 
             }
         };
+
+
+
+
+
+
+                // --- CUSTOM BABY SIZE DROPDOWN ---
+
+        window.toggleSizeMenu = function(itemId, event) {
+            if (event) event.stopPropagation();
+
+            const targetMenu = document.getElementById('size-menu-' + itemId);
+            const targetTrigger = document.getElementById('size-trigger-' + itemId);
+
+            if (!targetMenu || !targetTrigger) return;
+
+            const shouldOpen = targetMenu.hidden;
+
+            // Close all other size dropdowns first
+            document.querySelectorAll('.size-dropdown-menu').forEach(menu => {
+                menu.hidden = true;
+            });
+
+            document.querySelectorAll('.size-dropdown-trigger').forEach(button => {
+                button.setAttribute('aria-expanded', 'false');
+            });
+
+            if (shouldOpen) {
+                targetMenu.hidden = false;
+                targetTrigger.setAttribute('aria-expanded', 'true');
+            }
+        };
+
+        window.selectItemSize = function(itemId, selectedSize, event) {
+            if (event) event.stopPropagation();
+
+            // Save the selected size using the existing update function
+            updateItem(itemId, 'size', selectedSize);
+
+            const menu = document.getElementById('size-menu-' + itemId);
+            const trigger = document.getElementById('size-trigger-' + itemId);
+
+            if (!menu || !trigger) return;
+
+            const selectedOption = menu.querySelector(
+                `[onclick*="selectItemSize('${itemId}', '${selectedSize}'"]`
+            );
+
+            // Update the displayed selected value
+            const valueElement = trigger.querySelector('.size-dropdown-value');
+
+            if (valueElement && selectedOption) {
+                valueElement.textContent =
+                    selectedOption.querySelector('span').textContent;
+
+                valueElement.classList.toggle(
+                    'size-dropdown-placeholder',
+                    selectedSize === ''
+                );
+            }
+
+            // Update selected option styling
+            menu.querySelectorAll('.size-dropdown-option').forEach(option => {
+                option.classList.remove('active');
+                option.setAttribute('aria-selected', 'false');
+
+                const checkIcon = option.querySelector('.fa-check');
+
+                if (checkIcon) {
+                    checkIcon.remove();
+                }
+            });
+
+            if (selectedOption) {
+                selectedOption.classList.add('active');
+                selectedOption.setAttribute('aria-selected', 'true');
+
+                const check = document.createElement('i');
+                check.className = 'fas fa-check';
+                selectedOption.appendChild(check);
+            }
+
+            // Close dropdown
+            menu.hidden = true;
+            trigger.setAttribute('aria-expanded', 'false');
+        };
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (event.target.closest('.size-dropdown-wrapper')) return;
+
+            document.querySelectorAll('.size-dropdown-menu').forEach(menu => {
+                menu.hidden = true;
+            });
+
+            document.querySelectorAll('.size-dropdown-trigger').forEach(button => {
+                button.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        // Close dropdowns with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key !== 'Escape') return;
+
+            document.querySelectorAll('.size-dropdown-menu').forEach(menu => {
+                menu.hidden = true;
+            });
+
+            document.querySelectorAll('.size-dropdown-trigger').forEach(button => {
+                button.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+
+        
+
         
         const updatePrice = (storeId, itemId, value) => {
             if(!prices[storeId]) prices[storeId] = {};
