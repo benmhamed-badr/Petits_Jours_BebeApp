@@ -1667,15 +1667,39 @@ body.dark-mode .size-dropdown-option i {
             reader.onload = async (e) => {
                 try {
                     const data = JSON.parse(e.target.result);
-                    if(data.items && data.stores) {
-                        items = data.items.map(i => ({...i, priority: !!i.priority}));
-                        stores = data.stores;
-                        prices = data.prices || {}; images = data.images || {}; notes = data.notes || {};
-                        budget = data.budget || 10000;
-                        activeTabId = stores.length > 0 ? stores[0].id : 'summary';
+                    if (
+                        Array.isArray(data.items) &&
+                        Array.isArray(data.stores)
+                    ) {
+                        const importedStores = data.stores;
+
+                        items = data.items.map(i => ({
+                            ...i,
+                            priority: !!i.priority,
+                            finalStoreId: importedStores.some(
+                                store => store.id === i.finalStoreId
+                            )
+                                ? i.finalStoreId
+                                : null
+                        }));
+
+                        stores = importedStores;
+                        prices = data.prices || {};
+                        images = data.images || {};
+                        notes = data.notes || {};
+                        budget = data.budget ?? 10000;
+
+                        activeTabId = stores.length > 0
+                            ? stores[0].id
+                            : 'summary';
+
                         saveData();
                         renderApp();
-                        await showDialog('alert', t('alert_import_success'));
+
+                        await showDialog(
+                            'alert',
+                            t('alert_import_success')
+                        );
                     }
                 } catch (err) {
                     await showDialog('alert', t('alert_import_error'));
