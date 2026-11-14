@@ -539,6 +539,46 @@ body.dark-mode .size-dropdown-option i {
         .price-input-container:focus-within { border-color: var(--primary); }
         .price-input-container input { border: none; background: transparent; font-size: 16px; font-weight: bold; color: var(--text-main); width: 85px; text-align: right; padding: 4px; outline: none; }
         .price-input-container span { color: var(--text-muted); font-weight: bold; margin-left: 5px; font-size: 14px; }
+
+        /* Quantity control */
+.quantity-control {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 7px 10px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.quantity-control label {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.quantity-control input {
+    width: 75px;
+    min-height: 34px;
+    padding: 5px 8px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--primary);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    outline: none;
+}
+
+.quantity-control input:focus {
+    border-color: var(--primary);
+}
+
+        
+
+
         
         /* WhatsApp Bouton */
         .btn-whatsapp { background: #25D366; color: white; border: none; border-radius: 8px; width: 34px; height: 34px; display: flex; justify-content: center; align-items: center; font-size: 18px; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -615,6 +655,15 @@ body.dark-mode .size-dropdown-option i {
     color: var(--success);
 }
 
+
+.final-list-quantity {
+    margin-top: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+        
 .final-list-note {
     margin-top: 5px;
     color: var(--text-muted);
@@ -1131,6 +1180,7 @@ body.dark-mode .size-dropdown-option i {
                 new_cat_btn: "Nouvelle Catégorie", prompt_item: "Nom de l'article:", prompt_cat: "Nom de la catégorie:",
                 prompt_store: "Nom du magasin:", prompt_budget: "Entrez votre budget global (DH):",
                 placeholder_name: "Nom de l'article...", placeholder_det: "Qte/Détail...", placeholder_note: "Notes / Remarques...",
+                quantity_label: "Quantité",
                 alert_del_item: "Supprimer cet article ?", alert_del_store: "Supprimer ce magasin ?", alert_del_img: "Supprimer l'image ?",
                 badge_bought: "Acheté", placeholder_search: "Rechercher un article...", chart_title: "Répartition du Budget",
                 filter_all: "Tout", filter_todo: "À acheter", filter_bought: "Achetés ✅", filter_prio: "Priorité ⭐", 
@@ -1169,6 +1219,7 @@ body.dark-mode .size-dropdown-option i {
                 new_cat_btn: "Zid Catégorie Jdida", prompt_item: "Smiyat l'article:", prompt_cat: "Smiyat la catégorie (ex: Jouets):",
                 prompt_store: "Smiyat l'magasin:", prompt_budget: "Ch7al l'budget lli 7ttiti? (DH):",
                 placeholder_name: "Smiyat l'article...", placeholder_det: "Qte/Détail...", placeholder_note: "Mola7adat wla remarques...",
+                quantity_label: "L3adad",
                 alert_del_item: "Wach mt2ked bghiti tmse7 had l'article?", alert_del_store: "Wach mt2ked bghiti tmse7 magasin?", alert_del_img: "Tmse7 tswira?",
                 badge_bought: "Mchri ✅", placeholder_search: "9elleb 3la chi article...", chart_title: "T9ssim dyal l'Budget",
                 filter_all: "Kolchi", filter_todo: "Baqi machritouch", filter_bought: "Mchri ✅", filter_prio: "Darouri ⭐", 
@@ -1207,6 +1258,7 @@ body.dark-mode .size-dropdown-option i {
                 new_cat_btn: "New Category", prompt_item: "Item name:", prompt_cat: "Category name:",
                 prompt_store: "Store name:", prompt_budget: "Enter your max budget (DH):",
                 placeholder_name: "Item name...", placeholder_det: "Qty/Detail...", placeholder_note: "Notes / Remarks...",
+                quantity_label: "Quantity",
                 alert_del_item: "Delete this item?", alert_del_store: "Delete this store?", alert_del_img: "Remove image?",
                 badge_bought: "Bought", placeholder_search: "Search for an item...", chart_title: "Budget Breakdown",
                 filter_all: "All", filter_todo: "To Buy", filter_bought: "Bought ✅", filter_prio: "Priority ⭐", 
@@ -1275,14 +1327,15 @@ body.dark-mode .size-dropdown-option i {
 
         let items = JSON.parse(localStorage.getItem('bb_items15')) || JSON.parse(localStorage.getItem('bb_items6')) || [...defaultItems];
      
-        items = items.map(i => ({
-            ...i,
-            note: i.note || '',
-            bought: !!i.bought,
-            priority: !!i.priority,
-            valise: !!i.valise,
-            finalStoreId: i.finalStoreId ?? null
-        }));
+items = items.map(i => ({
+    ...i,
+    note: i.note || '',
+    bought: !!i.bought,
+    priority: !!i.priority,
+    valise: !!i.valise,
+    quantity: Math.max(1, parseInt(i.quantity, 10) || 1),
+    finalStoreId: i.finalStoreId ?? null
+}));
         
         let stores = JSON.parse(localStorage.getItem('bb_stores15')) || JSON.parse(localStorage.getItem('bb_stores6')) || [...defaultStores];
         let prices = JSON.parse(localStorage.getItem('bb_prices15')) || JSON.parse(localStorage.getItem('bb_prices6')) || {}; 
@@ -1602,22 +1655,39 @@ body.dark-mode .size-dropdown-option i {
             }
         };
 
+
+        
         const updateBudgetUI = () => {
             let totalSpent = 0;
+
             if (activeTabId === 'summary') {
                 items.forEach(item => {
-                    let minP = null;
+                    let minPrice = null;
 
-                    stores.forEach(s => {
-                        let p = parseFloat((prices[s.id] || {})[item.id]);
+                    stores.forEach(store => {
+                        const price = parseFloat(
+                            (prices[store.id] || {})[item.id]
+                        );
 
-                        if (!isNaN(p) && p > 0 && (minP === null || p < minP)) {
-                            minP = p;
+                        if (
+                            !isNaN(price) &&
+                            price > 0 &&
+                            (minPrice === null || price < minPrice)
+                        ) {
+                            minPrice = price;
                         }
                     });
 
-                    if (minP !== null) totalSpent += minP;
+                    if (minPrice !== null) {
+                        const quantity = Math.max(
+                            1,
+                            parseInt(item.quantity, 10) || 1
+                        );
+
+                        totalSpent += minPrice * quantity;
+                    }
                 });
+
             } else if (activeTabId === 'final-list') {
                 items.forEach(item => {
                     if (!item.finalStoreId) return;
@@ -1626,23 +1696,55 @@ body.dark-mode .size-dropdown-option i {
                         (prices[item.finalStoreId] || {})[item.id]
                     ) || 0;
 
-                    totalSpent += price;
+                    const quantity = Math.max(
+                        1,
+                        parseInt(item.quantity, 10) || 1
+                    );
+
+                    totalSpent += price * quantity;
                 });
+
             } else {
-                if (prices[activeTabId]) {
-                    Object.values(prices[activeTabId]).forEach(val => { totalSpent += parseFloat(val) || 0; });
-                }
+                items.forEach(item => {
+                    const price = parseFloat(
+                        (prices[activeTabId] || {})[item.id]
+                    ) || 0;
+
+                    const quantity = Math.max(
+                        1,
+                        parseInt(item.quantity, 10) || 1
+                    );
+
+                    totalSpent += price * quantity;
+                });
             }
-            
-            document.getElementById('budget-text-spent').innerText = `${t('footer_total')}: ${totalSpent.toFixed(0)} DH`;
-            document.getElementById('budget-text-max').innerText = `${t('budget_lbl')}: ${budget} DH`;
-            
-            const pct = Math.min((totalSpent / (budget || 1)) * 100, 100);
+
+            document.getElementById('budget-text-spent').innerText =
+                `${t('footer_total')}: ${totalSpent.toFixed(2)} DH`;
+
+            document.getElementById('budget-text-max').innerText =
+                `${t('budget_lbl')}: ${budget} DH`;
+
+            const pct = Math.min(
+                (totalSpent / (budget || 1)) * 100,
+                100
+            );
+
             const bar = document.getElementById('budget-bar-fill');
+
             bar.style.width = pct + '%';
-            if(pct >= 100) bar.classList.add('budget-over');
-            else bar.classList.remove('budget-over');
+
+            if (pct >= 100) {
+                bar.classList.add('budget-over');
+            } else {
+                bar.classList.remove('budget-over');
+            }
         };
+
+
+
+
+        
 
         const openSettingsModal = () => document.getElementById('settings-modal').classList.add('active');
         const closeSettingsModal = () => document.getElementById('settings-modal').classList.remove('active');
@@ -1676,6 +1778,10 @@ body.dark-mode .size-dropdown-option i {
                         items = data.items.map(i => ({
                             ...i,
                             priority: !!i.priority,
+                            quantity: Math.max(
+                                1,
+                                parseInt(i.quantity, 10) || 1
+                            ),
                             finalStoreId: importedStores.some(
                                 store => store.id === i.finalStoreId
                             )
@@ -2096,8 +2202,40 @@ const sizeDropdownHTML = showSizeDropdown ? `
                         </div>
                         <div class="mid-inputs">
                         ${sizeDropdownHTML}
-                            <input type="text" class="edit-det" style="width:100%; text-align:left; background:var(--input-bg); border:1px solid var(--border);" value="${item.det.replace(/"/g, '&quot;')}" placeholder="${t('placeholder_det')}" onchange="updateItem('${item.id}', 'det', this.value)">
-                            <input type="text" class="edit-note" value="${(notes[activeTabId] && notes[activeTabId][item.id]) ? notes[activeTabId][item.id].replace(/"/g, '&quot;') : ''}" placeholder="${t('placeholder_note')}" onchange="updateNote('${activeTabId}', '${item.id}', this.value)" style="margin-top:0;">
+
+                            <div class="quantity-control">
+                                <label for="quantity-${item.id}">
+                                    ${t('quantity_label')}
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="quantity-${item.id}"
+                                    min="1"
+                                    step="1"
+                                    inputmode="numeric"
+                                    value="${Math.max(1, parseInt(item.quantity, 10) || 1)}"
+                                    onchange="updateQuantity('${item.id}', this.value)"
+                                >
+                            </div>
+
+                            <input
+                                type="text"
+                                class="edit-det"
+                                style="width:100%; text-align:left; background:var(--input-bg); border:1px solid var(--border);"
+                                value="${item.det.replace(/"/g, '&quot;')}"
+                                placeholder="${t('placeholder_det')}"
+                                onchange="updateItem('${item.id}', 'det', this.value)"
+                            >
+
+                            <input
+                                type="text"
+                                class="edit-note"
+                                value="${(notes[activeTabId] && notes[activeTabId][item.id]) ? notes[activeTabId][item.id].replace(/"/g, '&quot;') : ''}"
+                                placeholder="${t('placeholder_note')}"
+                                onchange="updateNote('${activeTabId}', '${item.id}', this.value)"
+                                style="margin-top:0;"
+                            >
                         </div>
                     </div>
                     
@@ -2152,23 +2290,51 @@ const sizeDropdownHTML = showSizeDropdown ? `
                     <td>
                         <div style="${item.bought ? 'opacity:0.6;' : ''}">
                             ${item.priority ? '<i class="fas fa-star" style="color:#F1C40F; font-size:10px;"></i> ' : ''} 
-                            ${item.name} ${item.bought ? `<span class="bought-badge">${t('badge_bought')}</span>` : ''}
+                            ${item.name}
+                            <br>
+                            <small style="color:var(--primary); font-weight:bold;">
+                                ${t('quantity_label')}: ${Math.max(1, parseInt(item.quantity, 10) || 1)}
+                            </small>
+                            ${item.bought ? `<span class="bought-badge">${t('badge_bought')}</span>` : ''}
                             ${item.det ? `<br><small style="color:var(--text-muted);">${item.det}</small>` : ''}
                         </div>
                     </td>`;
-                
-                let pricesArr = [];
-                stores.forEach(s => {
-                    let p = parseFloat((prices[s.id] || {})[item.id]);
-                    if(!isNaN(p) && p > 0) pricesArr.push(p);
-                });
-                let minPrice = pricesArr.length > 0 ? Math.min(...pricesArr) : null;
 
-                if (minPrice) {
-                    let shortCat = item.cat.split(' (')[0];
-                    catTotals[shortCat] = (catTotals[shortCat] || 0) + minPrice;
+
+
+                
+                const quantity = Math.max(
+                    1,
+                    parseInt(item.quantity, 10) || 1
+                );
+
+                let pricesArr = [];
+
+                stores.forEach(store => {
+                    const price = parseFloat(
+                        (prices[store.id] || {})[item.id]
+                    );
+
+                    if (!isNaN(price) && price > 0) {
+                        pricesArr.push(price);
+                    }
+                });
+
+                const minPrice = pricesArr.length > 0
+                    ? Math.min(...pricesArr)
+                    : null;
+
+                if (minPrice !== null) {
+                    const shortCat = item.cat.split(' (')[0];
+
+                    catTotals[shortCat] =
+                        (catTotals[shortCat] || 0) +
+                        (minPrice * quantity);
+
                     hasData = true;
                 }
+
+                
 
                 stores.forEach(s => {
                     let pVal = (prices[s.id] || {})[item.id];
@@ -2191,11 +2357,30 @@ const sizeDropdownHTML = showSizeDropdown ? `
             });
 
             let tfoot = `<tr><td style="font-weight:bold; background:var(--cat1);">${t('footer_total').toUpperCase()}</td>`;
-            stores.forEach(s => {
+            stores.forEach(store => {
                 let total = 0;
-                if(prices[s.id]) { Object.values(prices[s.id]).forEach(val => { total += parseFloat(val) || 0; }); }
-                tfoot += `<td style="font-weight:bold; font-size:16px; background:var(--cat1);">${total.toFixed(2)} DH</td>`;
+
+                items.forEach(item => {
+                    const price = parseFloat(
+                        (prices[store.id] || {})[item.id]
+                    ) || 0;
+
+                    const quantity = Math.max(
+                        1,
+                        parseInt(item.quantity, 10) || 1
+                    );
+
+                    total += price * quantity;
+                });
+
+                tfoot += `
+                    <td style="font-weight:bold; font-size:16px; background:var(--cat1);">
+                        ${total.toFixed(2)} DH
+                    </td>
+                `;
             });
+
+            
             tfoot += '</tr>';
             table.innerHTML += tfoot;
 
@@ -2273,10 +2458,17 @@ const sizeDropdownHTML = showSizeDropdown ? `
                 const rawPrice = (prices[storeId] || {})[item.id];
                 const price = parseFloat(rawPrice) || 0;
 
+                const quantity = Math.max(
+                    1,
+                    parseInt(item.quantity, 10) || 1
+                );
+
+                const lineTotal = price * quantity;
+
                 const image = (images[storeId] || {})[item.id] || '';
                 const note = (notes[storeId] || {})[item.id] || '';
 
-                finalTotal += price;
+                finalTotal += lineTotal;;
 
                 const card = document.createElement('div');
                 card.className = 'final-list-card';
@@ -2300,8 +2492,13 @@ const sizeDropdownHTML = showSizeDropdown ? `
                             <span></span>
                         </div>
 
+                        <div class="final-list-quantity">
+                            ${t('quantity_label')}: ${quantity}
+                            × ${price.toFixed(2)} DH
+                        </div>
+
                         <div class="final-list-price">
-                            ${price.toFixed(2)} DH
+                            ${lineTotal.toFixed(2)} DH
                         </div>
 
                         ${item.det ? `
@@ -2604,20 +2801,51 @@ const sizeDropdownHTML = showSizeDropdown ? `
         };
 
 
+                const updateQuantity = (itemId, value) => {
+            const item = items.find(i => i.id === itemId);
+
+            if (!item) return;
+
+            const parsedQuantity = parseInt(value, 10);
+
+            item.quantity = Number.isFinite(parsedQuantity)
+                ? Math.max(1, parsedQuantity)
+                : 1;
+
+            saveData();
+
+            const quantityInput = document.getElementById(
+                'quantity-' + itemId
+            );
+
+            if (quantityInput) {
+                quantityInput.value = item.quantity;
+            }
+        };
 
 
 
 
-                const calculateTotal = () => {
-            if (activeTabId === 'summary' || activeTabId === 'final-list') return;
+
+                    const calculateTotal = () => {
+            if (activeTabId === 'summary' || activeTabId === 'final-list') {
+                return;
+            }
 
             let total = 0;
 
-            if (prices[activeTabId]) {
-                Object.values(prices[activeTabId]).forEach(val => {
-                    total += parseFloat(val) || 0;
-                });
-            }
+            items.forEach(item => {
+                const unitPrice = parseFloat(
+                    (prices[activeTabId] || {})[item.id]
+                ) || 0;
+
+                const quantity = Math.max(
+                    1,
+                    parseInt(item.quantity, 10) || 1
+                );
+
+                total += unitPrice * quantity;
+            });
 
             document.getElementById('current-store-total').innerText =
                 total.toFixed(2) + ' DH';
@@ -2633,7 +2861,20 @@ const sizeDropdownHTML = showSizeDropdown ? `
         const addNewItem = async (catName, catClass) => {
             const name = await showDialog('prompt', t('prompt_item'));
             if (name && name.trim()) {
-                const newItem = { id: 'item_' + Date.now(), cat: catName, catClass, name: name.trim(), det: '', img: '', note: '', bought: false, priority: false, valise: false };
+                                const newItem = {
+                    id: 'item_' + Date.now(),
+                    cat: catName,
+                    catClass,
+                    name: name.trim(),
+                    det: '',
+                    img: '',
+                    note: '',
+                    quantity: 1,
+                    bought: false,
+                    priority: false,
+                    valise: false,
+                    finalStoreId: null
+                };
                 
                 // هنا التغيير: كنقلبو على أول أرتيكل فهاد الكاتيڭوري باش نحطو الجديد فوق منو
                 let insertIdx = items.findIndex(i => i.cat === catName);
@@ -2657,7 +2898,20 @@ const sizeDropdownHTML = showSizeDropdown ? `
             if (catName && catName.trim()) {
                 const itemName = await showDialog('prompt', t('prompt_item'));
                 if (itemName && itemName.trim()) {
-                    items.push({ id: 'item_' + Date.now(), cat: catName.trim(), catClass: 'cat-custom', name: itemName.trim(), det: '', img: '', note: '', bought: false, priority: false, valise: false });
+                    items.push({
+                        id: 'item_' + Date.now(),
+                        cat: catName.trim(),
+                        catClass: 'cat-custom',
+                        name: itemName.trim(),
+                        det: '',
+                        img: '',
+                        note: '',
+                        quantity: 1,
+                        bought: false,
+                        priority: false,
+                        valise: false,
+                        finalStoreId: null
+                    });
                       
                             if (hasSize && !sizeCategories.includes(catName.trim())) {
                             sizeCategories.push(catName.trim());
@@ -2690,6 +2944,10 @@ const sizeDropdownHTML = showSizeDropdown ? `
                     id: 'item_' + Date.now(),
                     name: newName,
                     bought: false,
+                    quantity: Math.max(
+                        1,
+                        parseInt(original.quantity, 10) || 1
+                    ),
                     finalStoreId: null
                 };
                 
@@ -2812,10 +3070,17 @@ const sizeDropdownHTML = showSizeDropdown ? `
                         (prices[item.finalStoreId] || {})[item.id]
                     ) || 0;
 
+                                       const quantity = Math.max(
+                        1,
+                        parseInt(item.quantity, 10) || 1
+                    );
+
                     return {
                         item,
                         store,
                         price,
+                        quantity,
+                        lineTotal: price * quantity,
                         image: (images[item.finalStoreId] || {})[item.id] || '',
                         note: (notes[item.finalStoreId] || {})[item.id] || ''
                     };
@@ -2842,7 +3107,9 @@ const sizeDropdownHTML = showSizeDropdown ? `
                     'Size',
                     'Details',
                     t('final_store'),
+                    t('quantity_label'),
                     t('final_price') + ' (DH)',
+                    'Line Total (DH)',
                     'Notes',
                     'Status'
                 ]
@@ -2852,7 +3119,8 @@ const sizeDropdownHTML = showSizeDropdown ? `
 
             selected.forEach(entry => {
                 const item = entry.item;
-                total += entry.price;
+
+                total += entry.lineTotal;
 
                 rows.push([
                     item.name,
@@ -2860,7 +3128,9 @@ const sizeDropdownHTML = showSizeDropdown ? `
                     item.size ?? '',
                     item.det ?? '',
                     entry.store.name,
+                    entry.quantity,
                     entry.price,
+                    entry.lineTotal,
                     entry.note,
                     item.bought ? t('badge_bought') : t('filter_todo')
                 ]);
@@ -2873,6 +3143,8 @@ const sizeDropdownHTML = showSizeDropdown ? `
                 '',
                 '',
                 '',
+                '',
+                '',
                 total,
                 '',
                 ''
@@ -2880,6 +3152,8 @@ const sizeDropdownHTML = showSizeDropdown ? `
 
             rows.push([
                 t('final_remaining'),
+                '',
+                '',
                 '',
                 '',
                 '',
@@ -2896,7 +3170,9 @@ const sizeDropdownHTML = showSizeDropdown ? `
                 { wch: 12 },
                 { wch: 20 },
                 { wch: 22 },
+                { wch: 12 },
                 { wch: 16 },
+                { wch: 18 },
                 { wch: 30 },
                 { wch: 16 }
             ];
@@ -2920,16 +3196,21 @@ const sizeDropdownHTML = showSizeDropdown ? `
                 return;
             }
 
-            let message = `🛒 ${t('final_title')}\n\n`;
+             let message = `🛒 ${t('final_title')}\n\n`;
             let total = 0;
 
             selected.forEach((entry, index) => {
                 const item = entry.item;
-                total += entry.price;
+
+                total += entry.lineTotal;
 
                 message += `${index + 1}. ${item.name}\n`;
                 message += `🏬 ${entry.store.name}\n`;
-                message += `💰 ${entry.price.toFixed(2)} DH\n`;
+                message += `📦 ${t('quantity_label')}: ${entry.quantity}\n`;
+                message += `💰 Unit Price: ${entry.price.toFixed(2)} DH\n`;
+                message += `🧾 Subtotal: ${entry.lineTotal.toFixed(2)} DH\n`;
+
+                
 
                 if (item.size) {
                     message += `📏 ${item.size}\n`;
