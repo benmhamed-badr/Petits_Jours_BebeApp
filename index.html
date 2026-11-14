@@ -310,10 +310,8 @@ body.dark-mode .tab-final {
         input.edit-name:focus { outline: none; border-bottom-style: solid; }
         .card.is-bought input.edit-name { text-decoration: line-through; color: var(--text-muted); }
 
-        input.edit-det { width: 80px; font-size: 12px; color: var(--text-muted); border: none; background: var(--input-bg); border-radius: 4px; padding: 4px 8px; text-align: right; }
-        
-        input.edit-note { width: 100%; font-size: 12px; color: var(--text-main); border: 1px solid var(--border); background: var(--input-bg); border-radius: 6px; padding: 6px 10px; margin-top: 5px; outline: none; }
-        input.edit-note:focus { border-color: var(--primary); }
+/* Legacy detail field removed from the interface.
+   Existing saved item.det values remain untouched. */
 
 
         
@@ -540,16 +538,19 @@ body.dark-mode .size-dropdown-option i {
         .price-input-container input { border: none; background: transparent; font-size: 16px; font-weight: bold; color: var(--text-main); width: 85px; text-align: right; padding: 4px; outline: none; }
         .price-input-container span { color: var(--text-muted); font-weight: bold; margin-left: 5px; font-size: 14px; }
 
-        /* Quantity control */
+
+        
+/* Compact Quantity Control */
 .quantity-control {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    padding: 7px 10px;
-    background: var(--input-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    gap: 10px;
+    width: 100%;
+    min-height: 34px;
+    padding: 0;
+    background: transparent;
+    border: none;
 }
 
 .quantity-control label {
@@ -558,22 +559,97 @@ body.dark-mode .size-dropdown-option i {
     font-weight: 700;
 }
 
-.quantity-control input {
-    width: 75px;
-    min-height: 34px;
-    padding: 5px 8px;
-    text-align: center;
-    font-size: 14px;
-    font-weight: 800;
-    color: var(--primary);
-    background: var(--card-bg);
+.quantity-stepper {
+    display: flex;
+    align-items: center;
+    height: 32px;
+    overflow: hidden;
+    background: var(--input-bg);
     border: 1px solid var(--border);
-    border-radius: 7px;
-    outline: none;
+    border-radius: 8px;
 }
 
-.quantity-control input:focus {
+.quantity-step-btn {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: var(--primary);
+    font-size: 17px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.quantity-step-btn:active {
+    background: rgba(47, 117, 181, 0.15);
+}
+
+.quantity-stepper input {
+    width: 34px;
+    height: 30px;
+    padding: 0;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--primary);
+    background: transparent;
+    border: none;
+    outline: none;
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+.quantity-stepper input::-webkit-inner-spin-button,
+.quantity-stepper input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Compact Note Field */
+.note-control {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    min-height: 36px;
+    padding: 0 10px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: border-color 0.2s ease;
+}
+
+.note-control:focus-within {
     border-color: var(--primary);
+}
+
+.note-control i {
+    flex-shrink: 0;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+input.edit-note {
+    width: 100%;
+    min-width: 0;
+    height: 34px;
+    padding: 0;
+    margin: 0;
+    color: var(--text-main);
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: inherit;
+    font-size: 12px;
+}
+
+input.edit-note::placeholder {
+    color: var(--text-muted);
+    opacity: 0.85;
 }
 
         
@@ -2201,41 +2277,51 @@ const sizeDropdownHTML = showSizeDropdown ? `
                             ${itemImg ? `<div class="preview-img-btn" onclick="openPreviewModal('${item.id}', event)"><i class="fas fa-eye"></i></div>` : ''}
                         </div>
                         <div class="mid-inputs">
-                        ${sizeDropdownHTML}
+                            ${sizeDropdownHTML}
 
                             <div class="quantity-control">
                                 <label for="quantity-${item.id}">
                                     ${t('quantity_label')}
                                 </label>
 
-                                <input
-                                    type="number"
-                                    id="quantity-${item.id}"
-                                    min="1"
-                                    step="1"
-                                    inputmode="numeric"
-                                    value="${Math.max(1, parseInt(item.quantity, 10) || 1)}"
-                                    onchange="updateQuantity('${item.id}', this.value)"
-                                >
+                                <div class="quantity-stepper">
+                                    <button
+                                        type="button"
+                                        class="quantity-step-btn"
+                                        onclick="changeQuantity('${item.id}', -1)"
+                                        aria-label="Decrease quantity"
+                                    >−</button>
+
+                                    <input
+                                        type="number"
+                                        id="quantity-${item.id}"
+                                        min="1"
+                                        step="1"
+                                        inputmode="numeric"
+                                        value="${Math.max(1, parseInt(item.quantity, 10) || 1)}"
+                                        onchange="updateQuantity('${item.id}', this.value)"
+                                    >
+
+                                    <button
+                                        type="button"
+                                        class="quantity-step-btn"
+                                        onclick="changeQuantity('${item.id}', 1)"
+                                        aria-label="Increase quantity"
+                                    >+</button>
+                                </div>
                             </div>
 
-                            <input
-                                type="text"
-                                class="edit-det"
-                                style="width:100%; text-align:left; background:var(--input-bg); border:1px solid var(--border);"
-                                value="${item.det.replace(/"/g, '&quot;')}"
-                                placeholder="${t('placeholder_det')}"
-                                onchange="updateItem('${item.id}', 'det', this.value)"
-                            >
+                            <div class="note-control">
+                                <i class="fas fa-sticky-note"></i>
 
-                            <input
-                                type="text"
-                                class="edit-note"
-                                value="${(notes[activeTabId] && notes[activeTabId][item.id]) ? notes[activeTabId][item.id].replace(/"/g, '&quot;') : ''}"
-                                placeholder="${t('placeholder_note')}"
-                                onchange="updateNote('${activeTabId}', '${item.id}', this.value)"
-                                style="margin-top:0;"
-                            >
+                                <input
+                                    type="text"
+                                    class="edit-note"
+                                    value="${(notes[activeTabId] && notes[activeTabId][item.id]) ? notes[activeTabId][item.id].replace(/"/g, '&quot;') : ''}"
+                                    placeholder="${t('placeholder_note')}"
+                                    onchange="updateNote('${activeTabId}', '${item.id}', this.value)"
+                                >
+                            </div>
                         </div>
                     </div>
                     
@@ -2296,7 +2382,6 @@ const sizeDropdownHTML = showSizeDropdown ? `
                                 ${t('quantity_label')}: ${Math.max(1, parseInt(item.quantity, 10) || 1)}
                             </small>
                             ${item.bought ? `<span class="bought-badge">${t('badge_bought')}</span>` : ''}
-                            ${item.det ? `<br><small style="color:var(--text-muted);">${item.det}</small>` : ''}
                         </div>
                     </td>`;
 
@@ -2501,10 +2586,6 @@ const sizeDropdownHTML = showSizeDropdown ? `
                             ${lineTotal.toFixed(2)} DH
                         </div>
 
-                        ${item.det ? `
-                            <div class="final-list-note"></div>
-                        ` : ''}
-
                         ${note ? `
                             <div class="final-list-note"></div>
                         ` : ''}
@@ -2523,14 +2604,10 @@ const sizeDropdownHTML = showSizeDropdown ? `
                 card.querySelector('.final-list-item-name').textContent = item.name;
                 card.querySelector('.final-list-store span').textContent = storeName;
 
-                const noteElements = card.querySelectorAll('.final-list-note');
+                const noteElement = card.querySelector('.final-list-note');
 
-                if (item.det && noteElements[0]) {
-                    noteElements[0].textContent = item.det;
-                }
-
-                if (note && noteElements[item.det ? 1 : 0]) {
-                    noteElements[item.det ? 1 : 0].textContent = note;
+                if (note && noteElement) {
+                    noteElement.textContent = note;
                 }
 
                 container.appendChild(card);
@@ -2824,6 +2901,23 @@ const sizeDropdownHTML = showSizeDropdown ? `
         };
 
 
+        const changeQuantity = (itemId, change) => {
+            const item = items.find(i => i.id === itemId);
+
+            if (!item) return;
+
+            const currentQuantity = Math.max(
+                1,
+                parseInt(item.quantity, 10) || 1
+            );
+
+            updateQuantity(
+                itemId,
+                currentQuantity + change
+            );
+        };
+
+        
 
 
 
@@ -3105,7 +3199,6 @@ const sizeDropdownHTML = showSizeDropdown ? `
                     t('table_article'),
                     'Category',
                     'Size',
-                    'Details',
                     t('final_store'),
                     t('quantity_label'),
                     t('final_price') + ' (DH)',
@@ -3126,7 +3219,6 @@ const sizeDropdownHTML = showSizeDropdown ? `
                     item.name,
                     item.cat,
                     item.size ?? '',
-                    item.det ?? '',
                     entry.store.name,
                     entry.quantity,
                     entry.price,
@@ -3216,9 +3308,7 @@ const sizeDropdownHTML = showSizeDropdown ? `
                     message += `📏 ${item.size}\n`;
                 }
 
-                if (item.det) {
-                    message += `📦 ${item.det}\n`;
-                }
+
 
                 if (entry.note) {
                     message += `📝 ${entry.note}\n`;
