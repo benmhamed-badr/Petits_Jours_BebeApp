@@ -589,7 +589,58 @@ body.dark-mode .size-dropdown-option i {
         .dialog-btn-ok { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(47, 117, 181, 0.3); }
         body.dark-mode .dialog-btn-ok { box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3); }
 
-    
+
+
+
+
+        
+        /* Category dialog: adapt to the visible mobile viewport when keyboard opens */
+#custom-dialog-overlay.category-prompt-active {
+    position: fixed !important;
+    top: var(--category-vv-top, 0px) !important;
+    left: 0;
+    right: 0;
+    bottom: auto !important;
+    height: var(--category-vv-height, 100dvh) !important;
+    min-height: 0;
+    box-sizing: border-box;
+    padding: 12px 0;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+#custom-dialog-overlay.category-prompt-active .dialog-box {
+    width: 85%;
+    max-width: 350px;
+    max-height: calc(var(--category-vv-height, 100dvh) - 24px);
+    margin: auto;
+    flex-shrink: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+#custom-dialog-overlay.category-prompt-active .dialog-input {
+    font-size: 16px;
+    scroll-margin: 20px;
+}
+
+#custom-dialog-overlay.category-prompt-active #cat-size-container {
+    flex-shrink: 0;
+    padding: 5px 0;
+}
+
+#custom-dialog-overlay.category-prompt-active .dialog-btns {
+    flex-shrink: 0;
+}
+        
+
+
+
+
+        
         /* --- Loading Screen (Splash Screen) LOTTIE STYLE --- */
         #splash-screen {
             position: fixed;
@@ -956,6 +1007,9 @@ body.dark-mode .size-dropdown-option i {
             closeSortSheet(); // كنسدو النافذة
             renderStoreContent(); // كنرتبو ليزارتيكل
         };
+
+
+
         
         const showDialog = (type, message, defaultVal = '') => {
             return new Promise((resolve) => {
@@ -965,19 +1019,27 @@ body.dark-mode .size-dropdown-option i {
                 const btnCancel = document.getElementById('dialog-btn-cancel');
                 const btnOk = document.getElementById('dialog-btn-ok');
 
+                const isCategoryPrompt =
+                    type === 'prompt' && message === t('prompt_cat');
+
+                const sizeContainer = document.getElementById('cat-size-container');
+
                 msgEl.innerHTML = message.replace(/\n/g, '<br>');
-                
+
                 if (type === 'prompt') {
                     inputEl.style.display = 'block';
 
-                            const sizeContainer = document.getElementById('cat-size-container');
-                            if (sizeContainer) {
-                            sizeContainer.style.display = (message === t('prompt_cat')) ? 'flex' : 'none';
-                            }
-                    
+                    if (sizeContainer) {
+                        sizeContainer.style.display = isCategoryPrompt ? 'flex' : 'none';
+                    }
+
                     inputEl.value = defaultVal;
                 } else {
                     inputEl.style.display = 'none';
+
+                    if (sizeContainer) {
+                        sizeContainer.style.display = 'none';
+                    }
                 }
 
                 if (type === 'alert') {
@@ -989,24 +1051,126 @@ body.dark-mode .size-dropdown-option i {
 
                 btnOk.innerText = 'OK';
 
+                // Apply the mobile keyboard layout only to Add Category
+                let visualViewportRef = null;
+
+                const updateCategoryDialogViewport = () => {
+                    if (!isCategoryPrompt) return;
+
+                    const viewport = window.visualViewport;
+
+                    const viewportHeight = viewport
+                        ? viewport.height
+                        : window.innerHeight;
+
+                    const viewportTop = viewport
+                        ? viewport.offsetTop
+                        : 0;
+
+                    overlay.style.setProperty(
+                        '--category-vv-height',
+                        Math.max(180, viewportHeight) + 'px'
+                    );
+
+                    overlay.style.setProperty(
+                        '--category-vv-top',
+                        Math.max(0, viewportTop) + 'px'
+                    );
+                };
+
+                if (isCategoryPrompt) {
+                    overlay.classList.add('category-prompt-active');
+
+                    updateCategoryDialogViewport();
+
+                    visualViewportRef = window.visualViewport;
+
+                    if (visualViewportRef) {
+                        visualViewportRef.addEventListener(
+                            'resize',
+                            updateCategoryDialogViewport
+                        );
+
+                        visualViewportRef.addEventListener(
+                            'scroll',
+                            updateCategoryDialogViewport
+                        );
+                    }
+
+                    window.addEventListener(
+                        'resize',
+                        updateCategoryDialogViewport
+                    );
+                }
+
                 overlay.classList.add('active');
-                
-                const handleKey = (e) => { if(e.key === 'Enter') { e.preventDefault(); btnOk.click(); } };
+
+                const handleKey = (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        btnOk.click();
+                    }
+                };
+
                 if (type === 'prompt') {
                     inputEl.addEventListener('keypress', handleKey);
-                    setTimeout(() => { inputEl.focus(); inputEl.select(); }, 100);
+
+                    setTimeout(() => {
+                        inputEl.focus();
+                        inputEl.select();
+
+                        if (isCategoryPrompt) {
+                            updateCategoryDialogViewport();
+                        }
+                    }, 150);
                 }
 
                 const closeDialog = (result) => {
                     overlay.classList.remove('active');
+
+                    if (isCategoryPrompt) {
+                        overlay.classList.remove('category-prompt-active');
+
+                        overlay.style.removeProperty('--category-vv-height');
+                        overlay.style.removeProperty('--category-vv-top');
+
+                        if (visualViewportRef) {
+                            visualViewportRef.removeEventListener(
+                                'resize',
+                                updateCategoryDialogViewport
+                            );
+
+                            visualViewportRef.removeEventListener(
+                                'scroll',
+                                updateCategoryDialogViewport
+                            );
+                        }
+
+                        window.removeEventListener(
+                            'resize',
+                            updateCategoryDialogViewport
+                        );
+                    }
+
                     btnCancel.onclick = null;
                     btnOk.onclick = null;
-                    if(type === 'prompt') inputEl.removeEventListener('keypress', handleKey);
+                    overlay.onclick = null;
+
+                    if (type === 'prompt') {
+                        inputEl.removeEventListener('keypress', handleKey);
+                    }
+
                     resolve(result);
                 };
 
                 btnCancel.onclick = () => closeDialog(null);
-                overlay.onclick = (e) => { if (e.target === overlay) closeDialog(null); };
+
+                overlay.onclick = (e) => {
+                    if (e.target === overlay) {
+                        closeDialog(null);
+                    }
+                };
+
                 btnOk.onclick = () => {
                     if (type === 'prompt') {
                         closeDialog(inputEl.value);
@@ -1016,6 +1180,10 @@ body.dark-mode .size-dropdown-option i {
                 };
             });
         };
+
+
+
+        
 
         const syncHeaderHeight = () => {
             const header = document.getElementById('main-header');
