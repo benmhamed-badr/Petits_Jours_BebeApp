@@ -158,6 +158,30 @@
         .tab-add { background: transparent; border: 2px dashed var(--border); }
         .tab-summary { background: rgba(243, 156, 18, 0.1); color: #D35400; border: 2px solid rgba(243, 156, 18, 0.3); }
 
+
+        
+
+        .tab-final {
+    background: rgba(46, 204, 113, 0.10);
+    color: #168B58;
+    border: 2px solid rgba(46, 204, 113, 0.30);
+}
+
+.tab-final.active {
+    background: rgba(46, 204, 113, 0.16);
+    color: #168B58;
+    border-color: #27AE60;
+}
+
+body.dark-mode .tab-final {
+    color: #55D99A;
+    border-color: rgba(85, 217, 154, 0.35);
+}
+
+        
+
+
+        
         /* Search Wrapper */
         .search-wrapper { margin: 15px auto 0 auto; width: calc(100% - 30px); position: relative; max-width: 800px; display: flex; align-items: center; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .search-wrapper i { position: absolute; left: 15px; color: var(--text-muted); }
@@ -254,6 +278,28 @@
         .btn-priority:hover { transform: scale(1.1); }
         .btn-priority.active { color: #F1C40F; text-shadow: 0 0 5px rgba(241, 196, 15, 0.4); }
 
+
+
+
+        .btn-final-list {
+    font-size: 18px;
+    color: var(--border);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-final-list:hover {
+    transform: scale(1.1);
+}
+
+.btn-final-list.active {
+    color: #27AE60;
+    text-shadow: 0 0 5px rgba(39, 174, 96, 0.25);
+}
+
+        
+
+        
 
         .btn-duplicate-item { color: var(--primary); opacity: 0.6; cursor: pointer; padding: 5px; transition: 0.2s; }
         .btn-duplicate-item:hover { opacity: 1; transform: scale(1.1); }
@@ -499,6 +545,175 @@ body.dark-mode .size-dropdown-option i {
         .btn-whatsapp:active { transform: scale(0.95); }
 
         .summary-container { overflow-x: auto; background: var(--card-bg); border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px;}
+
+
+        /* --- Final Shopping List --- */
+.final-list-card {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 14px;
+    margin-bottom: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.final-list-image {
+    width: 76px;
+    height: 76px;
+    flex-shrink: 0;
+    border-radius: 9px;
+    object-fit: cover;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+}
+
+.final-list-image-placeholder {
+    width: 76px;
+    height: 76px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    color: var(--text-muted);
+    background: var(--input-bg);
+    border: 1px dashed var(--border);
+}
+
+.final-list-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.final-list-item-name {
+    color: var(--primary);
+    font-size: 15px;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+.final-list-store {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 7px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(47, 117, 181, 0.10);
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.final-list-price {
+    margin-top: 7px;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--success);
+}
+
+.final-list-note {
+    margin-top: 5px;
+    color: var(--text-muted);
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.final-list-remove {
+    border: 0;
+    background: transparent;
+    color: var(--danger);
+    padding: 7px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.final-list-summary {
+    padding: 16px;
+    margin-top: 18px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+}
+
+.final-summary-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    color: var(--text-main);
+}
+
+.final-summary-row strong {
+    color: var(--success);
+    white-space: nowrap;
+}
+
+.final-list-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.final-list-actions .btn {
+    width: 100%;
+    margin: 0;
+}
+
+.final-pdf-btn {
+    background: #E74C3C;
+}
+
+.final-whatsapp-btn {
+    background: #16A085;
+}
+
+.final-list-empty {
+    padding: 30px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    background: var(--card-bg);
+    border: 1px dashed var(--border);
+    border-radius: 13px;
+    line-height: 1.6;
+}
+
+@media print {
+    body.final-list-print * {
+        visibility: hidden;
+    }
+
+    body.final-list-print #final-list-content,
+    body.final-list-print #final-list-content * {
+        visibility: visible;
+    }
+
+    body.final-list-print #final-list-content {
+        display: block !important;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 10px;
+    }
+
+    body.final-list-print .final-list-actions,
+    body.final-list-print .final-list-remove {
+        display: none !important;
+    }
+
+    body.final-list-print .final-list-card,
+    body.final-list-print .final-list-summary {
+        break-inside: avoid;
+        box-shadow: none;
+    }
+}
+
+        
         table.summary-table { width: 100%; border-collapse: collapse; font-size: 13px; color: var(--text-main); }
         .summary-table th, .summary-table td { padding: 10px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); text-align: left; vertical-align: middle; }
         .summary-table th { background: var(--primary); color: white; position: sticky; top: 0; }
@@ -796,10 +1011,52 @@ body.dark-mode .size-dropdown-option i {
             <button class="btn" style="background:#16A085; margin:0; display:flex; align-items:center; justify-content:center; gap:8px; width: 100%;" onclick="shareValise()">
                 <i class="fas fa-suitcase"></i> <span id="t_btn_valise_share">Partager Valise Maternité</span>
             </button>
+         </div>
+    </div>
+
+
+
+    
+    <div class="content hidden" id="final-list-content">
+        <h2 style="color: var(--primary); text-align: center;" id="final-list-heading">
+            🛒 Final Shopping List
+        </h2>
+
+        <div id="final-list-items"></div>
+
+        <div class="final-list-summary">
+            <div class="final-summary-row">
+                <span id="final-total-label">Final List Total</span>
+                <strong id="final-list-total">0.00 DH</strong>
+            </div>
+
+            <div class="final-summary-row">
+                <span id="final-remaining-label">Remaining Budget</span>
+                <strong id="final-list-remaining">0.00 DH</strong>
+            </div>
+        </div>
+
+        <div class="final-list-actions">
+            <button class="btn final-pdf-btn" onclick="printFinalList()">
+                <i class="fas fa-file-pdf"></i>
+                <span id="final-pdf-label">Final List PDF</span>
+            </button>
+
+            <button class="btn btn-success" onclick="exportFinalListToExcel()">
+                <i class="fas fa-file-excel"></i>
+                <span id="final-excel-label">Final List Excel</span>
+            </button>
+
+            <button class="btn final-whatsapp-btn" onclick="shareFinalList()">
+                <i class="fab fa-whatsapp"></i>
+                <span id="final-share-label">Share Final List</span>
+            </button>
         </div>
     </div>
 
     <div class="signature">
+
+        
         <span id="t_signature">Developped by your daddy ❤️</span>
     </div>
 
@@ -883,6 +1140,22 @@ body.dark-mode .size-dropdown-option i {
                 alert_reset: "Êtes-vous sûr de vouloir tout effacer ? (Action irréversible)", table_article: "Article",
                 tooltip_prio: "Priorité", tooltip_valise: "Valise Maternité", tooltip_ws: "Partager sur WhatsApp",
                 tooltip_drag: "Réorganiser", tooltip_add: "Ajouter un article", budget_lbl: "Budget", preview_close: "Fermer",
+                
+                
+                tab_final: "Final List 🛒",
+                final_title: "🛒 Liste Finale",
+                final_empty: "Aucun article dans votre liste finale. Sélectionnez des articles dans vos magasins.",
+                final_select: "Ajouter à la Final List",
+                final_selected: "Dans la Final List",
+                final_conflict: "Cet article est déjà sélectionné dans un autre magasin :",
+                final_remove: "Retirer de la Final List",
+                final_total: "Total Final List",
+                final_remaining: "Budget restant",
+                final_share: "Partager la Final List",
+                final_pdf: "PDF Final List",
+                final_excel: "Excel Final List",
+                final_store: "Magasin",
+                final_price: "Prix",
                 signature: "Développé par papa ❤️"
             },
             ma: {
@@ -905,6 +1178,22 @@ body.dark-mode .size-dropdown-option i {
                 alert_reset: "Wach mt2ked bghiti tmse7 kolchi w trje3 mn zérou? (Rad lbal, ay7yed ga3 data)", table_article: "L'article",
                 tooltip_prio: "Darouri", tooltip_valise: "Sac d Sbitar", tooltip_ws: "Sayft f WhatsApp",
                 tooltip_drag: "Beddel lblasa", tooltip_add: "Zid article", budget_lbl: "L'budget", preview_close: "Sedd",
+                
+                
+                tab_final: "Final List 🛒",
+                final_title: "🛒 اللائحة النهائية",
+                final_empty: "Final List mazal khawya. Khtar chi articles mn les magasins.",
+                final_select: "Zid l Final List",
+                final_selected: "Mokhtar f Final List",
+                final_conflict: "Had l'article deja mkhtar f magasin akhor:",
+                final_remove: "7yed mn Final List",
+                final_total: "Total Final List",
+                final_remaining: "Budget li baqi",
+                final_share: "Partager Final List",
+                final_pdf: "PDF Final List",
+                final_excel: "Excel Final List",
+                final_store: "Magasin",
+                final_price: "Taman",
                 signature: "Msayeb mn 3nd Papa ❤️"
             },
             en: {
@@ -927,6 +1216,22 @@ body.dark-mode .size-dropdown-option i {
                 alert_reset: "Are you sure you want to reset everything? (This cannot be undone)", table_article: "Item",
                 tooltip_prio: "Priority", tooltip_valise: "Hospital Bag", tooltip_ws: "Share on WhatsApp",
                 tooltip_drag: "Reorder", tooltip_add: "Add an item", budget_lbl: "Budget", preview_close: "Close",
+                                
+                
+                tab_final: "Final List 🛒",
+                final_title: "🛒 Final Shopping List",
+                final_empty: "Your final list is empty. Select items from your stores first.",
+                final_select: "Add to Final List",
+                final_selected: "In Final List",
+                final_conflict: "This item is already selected in another store:",
+                final_remove: "Remove from Final List",
+                final_total: "Final List Total",
+                final_remaining: "Remaining Budget",
+                final_share: "Share Final List",
+                final_pdf: "Final List PDF",
+                final_excel: "Final List Excel",
+                final_store: "Store",
+                final_price: "Price",
                 signature: "Developed by daddy ❤️"
             }
         };
@@ -969,7 +1274,15 @@ body.dark-mode .size-dropdown-option i {
         const defaultStores = [{id: 's1', name: 'Magasin 1'}];
 
         let items = JSON.parse(localStorage.getItem('bb_items15')) || JSON.parse(localStorage.getItem('bb_items6')) || [...defaultItems];
-        items = items.map(i => ({...i, note: i.note || '', bought: !!i.bought, priority: !!i.priority, valise: !!i.valise})); 
+     
+        items = items.map(i => ({
+            ...i,
+            note: i.note || '',
+            bought: !!i.bought,
+            priority: !!i.priority,
+            valise: !!i.valise,
+            finalStoreId: i.finalStoreId ?? null
+        }));
         
         let stores = JSON.parse(localStorage.getItem('bb_stores15')) || JSON.parse(localStorage.getItem('bb_stores6')) || [...defaultStores];
         let prices = JSON.parse(localStorage.getItem('bb_prices15')) || JSON.parse(localStorage.getItem('bb_prices6')) || {}; 
@@ -1294,11 +1607,26 @@ body.dark-mode .size-dropdown-option i {
             if (activeTabId === 'summary') {
                 items.forEach(item => {
                     let minP = null;
+
                     stores.forEach(s => {
                         let p = parseFloat((prices[s.id] || {})[item.id]);
-                        if(!isNaN(p) && p>0 && (minP === null || p < minP)) minP = p;
+
+                        if (!isNaN(p) && p > 0 && (minP === null || p < minP)) {
+                            minP = p;
+                        }
                     });
-                    if(minP) totalSpent += minP;
+
+                    if (minP !== null) totalSpent += minP;
+                });
+            } else if (activeTabId === 'final-list') {
+                items.forEach(item => {
+                    if (!item.finalStoreId) return;
+
+                    const price = parseFloat(
+                        (prices[item.finalStoreId] || {})[item.id]
+                    ) || 0;
+
+                    totalSpent += price;
                 });
             } else {
                 if (prices[activeTabId]) {
@@ -1380,8 +1708,22 @@ body.dark-mode .size-dropdown-option i {
             const sumDiv = document.createElement('div');
             sumDiv.className = `tab tab-summary ${activeTabId === 'summary' ? 'active' : ''}`;
             sumDiv.innerHTML = `<i class="fas fa-table"></i> ${t('tab_sum')}`;
-            sumDiv.onclick = () => { activeTabId = 'summary'; renderApp(); window.scrollTo(0, 0); };
+            sumDiv.onclick = () => {
+                activeTabId = 'summary';
+                renderApp();
+                window.scrollTo(0, 0);
+            };
             container.appendChild(sumDiv);
+
+            const finalDiv = document.createElement('div');
+            finalDiv.className = `tab tab-final ${activeTabId === 'final-list' ? 'active' : ''}`;
+            finalDiv.innerHTML = `<i class="fas fa-clipboard-check"></i> ${t('tab_final')}`;
+            finalDiv.onclick = () => {
+                activeTabId = 'final-list';
+                renderApp();
+                window.scrollTo(0, 0);
+            };
+            container.appendChild(finalDiv);
         };
         
         // --- LOGIQUE RECHERCHE ET FILTRES ---
@@ -1448,6 +1790,61 @@ body.dark-mode .size-dropdown-option i {
             const idx = items.findIndex(i => i.id === itemId);
             if(idx !== -1) { items[idx].priority = !items[idx].priority; saveData(); renderStoreContent(); }
         };
+
+
+
+        
+
+                // --- FINAL LIST: one store selection per item ---
+        const toggleFinalList = async (itemId) => {
+            const item = items.find(i => i.id === itemId);
+            const currentStore = stores.find(s => s.id === activeTabId);
+
+            if (!item || !currentStore) return;
+
+            // Already selected in this store: remove it
+            if (item.finalStoreId === activeTabId) {
+                item.finalStoreId = null;
+                saveData();
+                renderStoreContent();
+                return;
+            }
+
+            // Selected in another store: prevent duplicate selection
+            if (item.finalStoreId) {
+                const previousStore = stores.find(
+                    store => store.id === item.finalStoreId
+                );
+
+                const previousStoreName = previousStore
+                    ? previousStore.name
+                    : item.finalStoreId;
+
+                await showDialog(
+                    'alert',
+                    `${t('final_conflict')} ${previousStoreName}.`
+                );
+
+                return;
+            }
+
+            // Select this item for the current store
+            item.finalStoreId = activeTabId;
+
+            saveData();
+            renderStoreContent();
+        };
+
+
+
+
+
+
+
+
+
+        
+
         
         const shareWhatsApp = (itemId) => {
             const item = items.find(i => i.id === itemId);
@@ -1685,6 +2082,8 @@ const sizeDropdownHTML = showSizeDropdown ? `
                         <div style="display:flex; gap:15px; align-items:center;">
                             <i class="fas fa-star btn-priority ${item.priority ? 'active' : ''}" onclick="togglePriority('${item.id}')" title="${t('tooltip_prio')}"></i>
                             <i class="fas fa-suitcase btn-valise ${item.valise ? 'active' : ''}" onclick="toggleValise('${item.id}')" title="${t('tooltip_valise')}"></i>
+                            <i class="fas fa-clipboard-check btn-final-list ${item.finalStoreId === activeTabId ? 'active' : ''}" onclick="toggleFinalList('${item.id}')" title="${item.finalStoreId === activeTabId ? t('final_remove') : t('final_select')}"></i>
+                            
                             <button class="btn-whatsapp" style="width:30px; height:30px; font-size:16px;" onclick="shareWhatsApp('${item.id}')" title="${t('tooltip_ws')}">
                                 <i class="fab fa-whatsapp"></i>
                             </button>
@@ -1805,40 +2204,211 @@ const sizeDropdownHTML = showSizeDropdown ? `
             }
         };
 
+
+
+
+                const renderFinalList = () => {
+            const container = document.getElementById('final-list-items');
+            const selectedItems = items.filter(item =>
+                item.finalStoreId &&
+                stores.some(store => store.id === item.finalStoreId)
+            );
+
+            container.innerHTML = '';
+
+            let finalTotal = 0;
+
+            const heading = document.getElementById('final-list-heading');
+            const totalLabel = document.getElementById('final-total-label');
+            const remainingLabel = document.getElementById('final-remaining-label');
+            const pdfLabel = document.getElementById('final-pdf-label');
+            const excelLabel = document.getElementById('final-excel-label');
+            const shareLabel = document.getElementById('final-share-label');
+
+            if (heading) heading.textContent = t('final_title');
+            if (totalLabel) totalLabel.textContent = t('final_total');
+            if (remainingLabel) remainingLabel.textContent = t('final_remaining');
+            if (pdfLabel) pdfLabel.textContent = t('final_pdf');
+            if (excelLabel) excelLabel.textContent = t('final_excel');
+            if (shareLabel) shareLabel.textContent = t('final_share');
+
+            if (selectedItems.length === 0) {
+                container.innerHTML = `
+                    <div class="final-list-empty">
+                        <i class="fas fa-clipboard-list"
+                           style="font-size:35px; color:var(--primary); margin-bottom:12px;"></i>
+                        <div>${t('final_empty')}</div>
+                    </div>
+                `;
+            }
+
+            selectedItems.forEach(item => {
+                const store = stores.find(s => s.id === item.finalStoreId);
+                const storeId = item.finalStoreId;
+
+                const rawPrice = (prices[storeId] || {})[item.id];
+                const price = parseFloat(rawPrice) || 0;
+
+                const image = (images[storeId] || {})[item.id] || '';
+                const note = (notes[storeId] || {})[item.id] || '';
+
+                finalTotal += price;
+
+                const card = document.createElement('div');
+                card.className = 'final-list-card';
+
+                const imageHTML = image
+                    ? `<img class="final-list-image" src="${image}" alt="">`
+                    : `<div class="final-list-image-placeholder">
+                           <i class="fas fa-camera"></i>
+                       </div>`;
+
+                const storeName = store ? store.name : storeId;
+
+                card.innerHTML = `
+                    ${imageHTML}
+
+                    <div class="final-list-item-info">
+                        <div class="final-list-item-name"></div>
+
+                        <div class="final-list-store">
+                            <i class="fas fa-store"></i>
+                            <span></span>
+                        </div>
+
+                        <div class="final-list-price">
+                            ${price.toFixed(2)} DH
+                        </div>
+
+                        ${item.det ? `
+                            <div class="final-list-note"></div>
+                        ` : ''}
+
+                        ${note ? `
+                            <div class="final-list-note"></div>
+                        ` : ''}
+                    </div>
+
+                    <button
+                        type="button"
+                        class="final-list-remove"
+                        title="${t('final_remove')}"
+                        onclick="removeFromFinalList('${item.id}')"
+                    >
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+
+                card.querySelector('.final-list-item-name').textContent = item.name;
+                card.querySelector('.final-list-store span').textContent = storeName;
+
+                const noteElements = card.querySelectorAll('.final-list-note');
+
+                if (item.det && noteElements[0]) {
+                    noteElements[0].textContent = item.det;
+                }
+
+                if (note && noteElements[item.det ? 1 : 0]) {
+                    noteElements[item.det ? 1 : 0].textContent = note;
+                }
+
+                container.appendChild(card);
+            });
+
+            document.getElementById('final-list-total').textContent =
+                finalTotal.toFixed(2) + ' DH';
+
+            document.getElementById('final-list-remaining').textContent =
+                (budget - finalTotal).toFixed(2) + ' DH';
+        };
+
+        const removeFromFinalList = (itemId) => {
+            const item = items.find(i => i.id === itemId);
+
+            if (!item) return;
+
+            item.finalStoreId = null;
+
+            saveData();
+            renderFinalList();
+            renderTabs();
+        };
+        
+
+
+        
+
+        
         const renderApp = () => {
             renderTabs();
+
             const mainContent = document.getElementById('main-content');
             const summaryContent = document.getElementById('summary-content');
+            const finalContent = document.getElementById('final-list-content');
             const footer = document.getElementById('total-footer');
             const searchWrap = document.getElementById('search-wrapper');
             const filtersWrap = document.getElementById('filters-wrapper');
 
-            if (activeTabId === 'summary') {
+            const isSummary = activeTabId === 'summary';
+            const isFinalList = activeTabId === 'final-list';
+
+            if (isSummary || isFinalList) {
                 document.body.classList.add('is-summary');
+
                 mainContent.classList.add('hidden');
                 searchWrap.classList.add('hidden');
                 filtersWrap.classList.add('hidden');
-                summaryContent.classList.remove('hidden');
+
+                summaryContent.classList.toggle('hidden', !isSummary);
+                finalContent.classList.toggle('hidden', !isFinalList);
+
                 if (footer) footer.classList.add('hidden');
-                renderSummary();
+
+                document.body.classList.toggle('final-list-print', isFinalList);
+
+                if (isSummary) {
+                    renderSummary();
+                }
+
+                if (isFinalList) {
+                    renderFinalList();
+                }
             } else {
                 document.body.classList.remove('is-summary');
+                document.body.classList.remove('final-list-print');
+
                 mainContent.classList.remove('hidden');
                 searchWrap.classList.remove('hidden');
                 filtersWrap.classList.remove('hidden');
+
                 summaryContent.classList.add('hidden');
+                finalContent.classList.add('hidden');
+
                 if (footer) footer.classList.remove('hidden');
+
                 const currentStore = stores.find(s => s.id === activeTabId);
-                if (currentStore) document.getElementById('current-store-name').innerText = currentStore.name;
-                
+
+                if (currentStore) {
+                    document.getElementById('current-store-name').innerText =
+                        currentStore.name;
+                }
+
                 const searchInput = document.getElementById('search-input');
-                if(searchInput && searchInput.value !== searchQuery) searchInput.value = searchQuery;
-                
+
+                if (searchInput && searchInput.value !== searchQuery) {
+                    searchInput.value = searchQuery;
+                }
+
                 renderStoreContent();
                 calculateTotal();
             }
+
             updateBudgetUI();
         };
+
+
+
+        
 
         const updateItem = (itemId, field, value) => {
             const idx = items.findIndex(i => i.id === itemId);
@@ -2008,12 +2578,33 @@ const sizeDropdownHTML = showSizeDropdown ? `
             if(!notes[storeId]) notes[storeId] = {};
             notes[storeId][itemId] = value; saveData();
         };
-        const calculateTotal = () => {
-            if (activeTabId === 'summary') return;
+
+
+
+
+
+
+                const calculateTotal = () => {
+            if (activeTabId === 'summary' || activeTabId === 'final-list') return;
+
             let total = 0;
-            if (prices[activeTabId]) { Object.values(prices[activeTabId]).forEach(val => { total += parseFloat(val) || 0; }); }
-            document.getElementById('current-store-total').innerText = total.toFixed(2) + ' DH';
+
+            if (prices[activeTabId]) {
+                Object.values(prices[activeTabId]).forEach(val => {
+                    total += parseFloat(val) || 0;
+                });
+            }
+
+            document.getElementById('current-store-total').innerText =
+                total.toFixed(2) + ' DH';
         };
+
+
+
+
+
+
+        
 
         const addNewItem = async (catName, catClass) => {
             const name = await showDialog('prompt', t('prompt_item'));
@@ -2074,7 +2665,8 @@ const sizeDropdownHTML = showSizeDropdown ? `
                     ...original,
                     id: 'item_' + Date.now(),
                     name: newName,
-                    bought: false
+                    bought: false,
+                    finalStoreId: null
                 };
                 
                 // كنزيدوه مباشرة تحت الأرتيكل الأصلي
@@ -2108,7 +2700,23 @@ const sizeDropdownHTML = showSizeDropdown ? `
         };
         const deleteStore = async (storeId) => {
             if(await showDialog('confirm', t('alert_del_store'))) {
-                stores = stores.filter(s => s.id !== storeId); delete prices[storeId]; delete images[storeId]; delete notes[storeId];
+                
+                
+                
+                stores = stores.filter(s => s.id !== storeId);
+                delete prices[storeId];
+                delete images[storeId];
+                delete notes[storeId];
+
+                // Remove final-list selections belonging to the deleted store
+                items.forEach(item => {
+                    if (item.finalStoreId === storeId) {
+                        item.finalStoreId = null;
+                    }
+                });
+
+
+                
                 if(activeTabId === storeId) { activeTabId = stores.length > 0 ? stores[0].id : 'summary'; }
                 saveData(); renderApp(); window.scrollTo(0, 0); 
             }
@@ -2165,6 +2773,182 @@ const sizeDropdownHTML = showSizeDropdown ? `
             const wb = XLSX.utils.table_to_book(table, {sheet: t('tab_sum')});
             XLSX.writeFile(wb, "Comparaison_Bebe.xlsx");
         };
+
+        // --- FINAL LIST EXPORTS ---
+
+        const getFinalListData = () => {
+            return items
+                .filter(item =>
+                    item.finalStoreId &&
+                    stores.some(store => store.id === item.finalStoreId)
+                )
+                .map(item => {
+                    const store = stores.find(s => s.id === item.finalStoreId);
+                    const price = parseFloat(
+                        (prices[item.finalStoreId] || {})[item.id]
+                    ) || 0;
+
+                    return {
+                        item,
+                        store,
+                        price,
+                        image: (images[item.finalStoreId] || {})[item.id] || '',
+                        note: (notes[item.finalStoreId] || {})[item.id] || ''
+                    };
+                });
+        };
+
+        const exportFinalListToExcel = async () => {
+            if (typeof XLSX === 'undefined') {
+                await showDialog('alert', t('alert_import_error'));
+                return;
+            }
+
+            const selected = getFinalListData();
+
+            if (selected.length === 0) {
+                await showDialog('alert', t('final_empty'));
+                return;
+            }
+
+            const rows = [
+                [
+                    t('table_article'),
+                    'Category',
+                    'Size',
+                    'Details',
+                    t('final_store'),
+                    t('final_price') + ' (DH)',
+                    'Notes',
+                    'Status'
+                ]
+            ];
+
+            let total = 0;
+
+            selected.forEach(entry => {
+                const item = entry.item;
+                total += entry.price;
+
+                rows.push([
+                    item.name,
+                    item.cat,
+                    item.size ?? '',
+                    item.det ?? '',
+                    entry.store.name,
+                    entry.price,
+                    entry.note,
+                    item.bought ? t('badge_bought') : t('filter_todo')
+                ]);
+            });
+
+            rows.push([]);
+            rows.push([
+                t('final_total'),
+                '',
+                '',
+                '',
+                '',
+                total,
+                '',
+                ''
+            ]);
+
+            rows.push([
+                t('final_remaining'),
+                '',
+                '',
+                '',
+                '',
+                budget - total,
+                '',
+                ''
+            ]);
+
+            const worksheet = XLSX.utils.aoa_to_sheet(rows);
+            worksheet['!cols'] = [
+                { wch: 32 },
+                { wch: 24 },
+                { wch: 12 },
+                { wch: 20 },
+                { wch: 22 },
+                { wch: 16 },
+                { wch: 30 },
+                { wch: 16 }
+            ];
+
+            const workbook = XLSX.utils.book_new();
+
+            XLSX.utils.book_append_sheet(
+                workbook,
+                worksheet,
+                'Final List'
+            );
+
+            XLSX.writeFile(workbook, 'LittleDays_Final_List.xlsx');
+        };
+
+        const shareFinalList = async () => {
+            const selected = getFinalListData();
+
+            if (selected.length === 0) {
+                await showDialog('alert', t('final_empty'));
+                return;
+            }
+
+            let message = `🛒 ${t('final_title')}\n\n`;
+            let total = 0;
+
+            selected.forEach((entry, index) => {
+                const item = entry.item;
+                total += entry.price;
+
+                message += `${index + 1}. ${item.name}\n`;
+                message += `🏬 ${entry.store.name}\n`;
+                message += `💰 ${entry.price.toFixed(2)} DH\n`;
+
+                if (item.size) {
+                    message += `📏 ${item.size}\n`;
+                }
+
+                if (item.det) {
+                    message += `📦 ${item.det}\n`;
+                }
+
+                if (entry.note) {
+                    message += `📝 ${entry.note}\n`;
+                }
+
+                message += '\n';
+            });
+
+            message += `--------------------\n`;
+            message += `${t('final_total')}: ${total.toFixed(2)} DH\n`;
+            message += `${t('final_remaining')}: ${(budget - total).toFixed(2)} DH\n`;
+            message += `Budget: ${budget.toFixed(2)} DH`;
+
+            window.open(
+                `https://wa.me/?text=${encodeURIComponent(message)}`,
+                '_blank'
+            );
+        };
+
+        const printFinalList = () => {
+            activeTabId = 'final-list';
+            renderApp();
+
+            document.body.classList.add('final-list-print');
+
+            window.print();
+        };
+
+        window.addEventListener('afterprint', () => {
+            document.body.classList.remove('final-list-print');
+        });
+
+
+
+        
 
         const resetAllData = async () => {
             if(await showDialog('confirm', t('alert_reset'))) {
