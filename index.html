@@ -854,6 +854,20 @@ input.edit-note::placeholder {
         .statistics-hero-label { display: block; position: relative; z-index: 1; font-size: 13px; font-weight: 700; opacity: .88; }
         .statistics-hero-value { display: block; position: relative; z-index: 1; margin: 7px 0 4px; font-size: clamp(28px, 6vw, 38px); line-height: 1.15; font-weight: 900; letter-spacing: -.5px; overflow-wrap: anywhere; }
         .statistics-hero-caption { position: relative; z-index: 1; font-size: 12px; opacity: .82; }
+        .statistics-alert { display: flex; align-items: flex-start; gap: 11px; margin: 0 0 12px; padding: 13px 14px; border: 1px solid transparent; border-radius: 13px; }
+        .statistics-alert-icon { display: flex; flex: 0 0 25px; width: 25px; height: 25px; align-items: center; justify-content: center; border-radius: 50%; font-size: 14px; font-weight: 900; }
+        .statistics-alert-copy { display: flex; min-width: 0; flex-direction: column; gap: 3px; }
+        .statistics-alert-copy strong { font-size: 12px; line-height: 1.35; }
+        .statistics-alert-copy span { font-size: 11px; line-height: 1.45; overflow-wrap: anywhere; }
+        .statistics-alert-ok { color: #18794E; background: rgba(46,204,113,.10); border-color: rgba(46,204,113,.25); }
+        .statistics-alert-ok .statistics-alert-icon { color: #fff; background: #27AE60; }
+        .statistics-alert-warning { color: #956000; background: rgba(241,196,15,.13); border-color: rgba(241,196,15,.35); }
+        .statistics-alert-warning .statistics-alert-icon { color: #fff; background: #D99B00; }
+        .statistics-alert-danger { color: #B42318; background: rgba(231,76,60,.10); border-color: rgba(231,76,60,.28); }
+        .statistics-alert-danger .statistics-alert-icon { color: #fff; background: #D92D20; }
+        body.dark-mode .statistics-alert-ok { color: #8BE0B2; }
+        body.dark-mode .statistics-alert-warning { color: #F5D56B; }
+        body.dark-mode .statistics-alert-danger { color: #FF9B91; }
         .statistics-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0 0 22px; }
         .statistics-card { min-width: 0; padding: 14px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 3px 12px rgba(0,0,0,.035); }
         .statistics-card-label { display: block; color: var(--text-muted); font-size: 11px; line-height: 1.35; font-weight: 700; margin-bottom: 8px; }
@@ -1171,6 +1185,13 @@ input.edit-note::placeholder {
             <strong class="statistics-hero-value" id="statistics-estimated-value">0.00 DH</strong>
             <span class="statistics-hero-caption" id="statistics-total-caption"></span>
         </section>
+        <section class="statistics-alert statistics-alert-ok" id="statistics-budget-alert" role="status" aria-live="polite">
+            <span class="statistics-alert-icon" id="statistics-budget-alert-icon" aria-hidden="true">✓</span>
+            <div class="statistics-alert-copy">
+                <strong id="statistics-budget-alert-title"></strong>
+                <span id="statistics-budget-alert-message"></span>
+            </div>
+        </section>
         <div class="statistics-grid">
             <div class="statistics-card">
                 <span class="statistics-card-label" id="statistics-progress-label"></span>
@@ -1337,7 +1358,13 @@ input.edit-note::placeholder {
                 statistics_breakdown: "Répartition du budget par catégorie",
                 statistics_empty: "Ajoutez des prix aux articles pour afficher la répartition par catégorie.",
                 statistics_final: "Total de la Final List",
-                statistics_final_count: "Articles sélectionnés"
+                statistics_final_count: "Articles sélectionnés",
+                statistics_alert_ok: "Budget sous contrôle",
+                statistics_alert_ok_message: "Il vous reste {amount} DH avant d’atteindre votre budget.",
+                statistics_alert_warning: "Attention : budget bientôt atteint",
+                statistics_alert_warning_message: "Vous avez utilisé {percent}% du budget. Il reste {amount} DH.",
+                statistics_alert_exceeded: "Budget dépassé",
+                statistics_alert_exceeded_message: "Vous dépassez votre budget de {amount} DH."
             },
             ma: {
                 app_title: "Petits Jours", app_subtitle: "Gad l'budget o les magasins",
@@ -1387,7 +1414,13 @@ input.edit-note::placeholder {
                 statistics_breakdown: "T9sim lbudget 3la 7sab categories",
                 statistics_empty: "Zid taman lchi produits bach yban lik t9sim lbudget 3la categories.",
                 statistics_final: "Total dyal Final List",
-                statistics_final_count: "Articles mkhtarin"
+                statistics_final_count: "Articles mkhtarin",
+                statistics_alert_ok: "Lbudget mazal mzyan",
+                statistics_alert_ok_message: "Ba9i lik {amount} DH bach twsel lbudget dyalk.",
+                statistics_alert_warning: "T9rebti twsel lbudget",
+                statistics_alert_warning_message: "Srafti {percent}% men lbudget. Ba9i lik {amount} DH.",
+                statistics_alert_exceeded: "Foutti lbudget",
+                statistics_alert_exceeded_message: "Foutti lbudget dyalk b {amount} DH."
             },
             en: {
                 app_title: "Petits Jours", app_subtitle: "Manage stores and budget",
@@ -1437,7 +1470,13 @@ input.edit-note::placeholder {
                 statistics_breakdown: "Budget breakdown by category",
                 statistics_empty: "Add prices to your items to see the category breakdown.",
                 statistics_final: "Final List total",
-                statistics_final_count: "Selected items"
+                statistics_final_count: "Selected items",
+                statistics_alert_ok: "Budget on track",
+                statistics_alert_ok_message: "You have {amount} DH left before reaching your budget.",
+                statistics_alert_warning: "You are nearing your budget",
+                statistics_alert_warning_message: "You have used {percent}% of your budget. {amount} DH remaining.",
+                statistics_alert_exceeded: "Budget exceeded",
+                statistics_alert_exceeded_message: "You are over budget by {amount} DH."
             }
         };
 
@@ -2505,6 +2544,32 @@ const sizeDropdownHTML = showSizeDropdown ? `
             document.getElementById('statistics-estimated-label').textContent = t('statistics_estimated');
             document.getElementById('statistics-estimated-value').textContent = estimatedTotal.toLocaleString(currentLang === 'en' ? 'en-US' : 'fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' DH';
             document.getElementById('statistics-total-caption').textContent = t('statistics_total_caption');
+
+            const budgetAlert = document.getElementById('statistics-budget-alert');
+            const budgetAlertTitle = document.getElementById('statistics-budget-alert-title');
+            const budgetAlertMessage = document.getElementById('statistics-budget-alert-message');
+            const budgetAlertIcon = document.getElementById('statistics-budget-alert-icon');
+            const safeBudget = Math.max(0, Number(budget) || 0);
+            const budgetPercent = safeBudget > 0 ? (estimatedTotal / safeBudget) * 100 : 100;
+            const moneyFormat = value => value.toLocaleString(currentLang === 'en' ? 'en-US' : 'fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            budgetAlert.classList.remove('statistics-alert-ok', 'statistics-alert-warning', 'statistics-alert-danger');
+            if (budgetPercent >= 100) {
+                budgetAlert.classList.add('statistics-alert-danger');
+                budgetAlertIcon.textContent = '!';
+                budgetAlertTitle.textContent = t('statistics_alert_exceeded');
+                budgetAlertMessage.textContent = t('statistics_alert_exceeded_message').replace('{amount}', moneyFormat(estimatedTotal - safeBudget));
+            } else if (budgetPercent >= 80) {
+                budgetAlert.classList.add('statistics-alert-warning');
+                budgetAlertIcon.textContent = '!';
+                budgetAlertTitle.textContent = t('statistics_alert_warning');
+                budgetAlertMessage.textContent = t('statistics_alert_warning_message').replace('{percent}', Math.round(budgetPercent)).replace('{amount}', moneyFormat(safeBudget - estimatedTotal));
+            } else {
+                budgetAlert.classList.add('statistics-alert-ok');
+                budgetAlertIcon.textContent = '✓';
+                budgetAlertTitle.textContent = t('statistics_alert_ok');
+                budgetAlertMessage.textContent = t('statistics_alert_ok_message').replace('{amount}', moneyFormat(Math.max(0, safeBudget - estimatedTotal)));
+            }
             document.getElementById('statistics-progress-label').textContent = t('statistics_progress');
             document.getElementById('statistics-progress-value').textContent = `${boughtCount}/${totalCount} (${progress}%)`;
             document.getElementById('statistics-progress-fill').style.width = progress + '%';
