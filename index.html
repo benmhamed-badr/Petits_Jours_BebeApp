@@ -1195,14 +1195,12 @@ input.edit-note::placeholder {
     <div id="sort-action-sheet" class="hidden">
         <div class="sheet-overlay" onclick="closeSortSheet()"></div>
         <div class="sheet-content-wrapper">
-            <h3 class="modal-title" style="margin-bottom:20px;">ترتيب حسب / Trier par</h3>
-            <button class="sheet-btn" style="text-align: left; background: var(--input-bg); margin-bottom: 8px; border-radius: 8px; font-weight: bold;" onclick="handleSort('default')">↕️ الترتيب الافتراضي (Par défaut)</button>
-            <button class="sheet-btn" style="text-align: left; background: var(--input-bg); margin-bottom: 8px; border-radius: 8px; font-weight: bold;" onclick="handleSort('name')">🔤 السمية (A - Z)</button>
-            <button class="sheet-btn" style="text-align: left; background: var(--input-bg); margin-bottom: 8px; border-radius: 8px; font-weight: bold;" onclick="handleSort('price_asc')">💶 الثمن (الرخيص للغالي)</button>
-            <button class="sheet-btn" style="text-align: left; background: var(--input-bg); margin-bottom: 8px; border-radius: 8px; font-weight: bold;" onclick="handleSort('price_desc')">💶 الثمن (الغالي للرخيص)</button>
-            <button class="sheet-btn sheet-btn-cancel" onclick="closeSortSheet()" style="margin-top: 10px;">
-                <i class="fas fa-times"></i> إلغاء / Annuler
-            </button>
+            <h3 class="modal-title" id="sort-sheet-title" style="margin-bottom:20px;"></h3>
+            <button class="sheet-btn" style="text-align:left; background:var(--input-bg); margin-bottom:8px; border-radius:8px; font-weight:bold;" onclick="handleSort('default')">↕️ <span id="sort-default-label"></span></button>
+            <button class="sheet-btn" style="text-align:left; background:var(--input-bg); margin-bottom:8px; border-radius:8px; font-weight:bold;" onclick="handleSort('name')">🔤 <span id="sort-name-label"></span></button>
+            <button class="sheet-btn" style="text-align:left; background:var(--input-bg); margin-bottom:8px; border-radius:8px; font-weight:bold;" onclick="handleSort('price_asc')">💶 <span id="sort-price-asc-label"></span></button>
+            <button class="sheet-btn" style="text-align:left; background:var(--input-bg); margin-bottom:8px; border-radius:8px; font-weight:bold;" onclick="handleSort('price_desc')">💶 <span id="sort-price-desc-label"></span></button>
+            <button class="sheet-btn sheet-btn-cancel" onclick="closeSortSheet()" style="margin-top:10px;"><i class="fas fa-times"></i> <span id="sort-cancel-label"></span></button>
         </div>
     </div>
     
@@ -1284,6 +1282,7 @@ input.edit-note::placeholder {
                 final_excel: "Excel Final List",
                 final_store: "Magasin",
                 final_price: "Prix",
+                sort_title: "Trier par", sort_default: "Ordre par défaut", sort_name: "Nom (A - Z)", sort_price_asc: "Prix (du moins cher au plus cher)", sort_price_desc: "Prix (du plus cher au moins cher)", cancel: "Annuler", ok: "OK", sync_reset: "Tout réinitialiser", size_placeholder: "Taille / Âge", size_newborn: "Nouveau-né", size_months: "mois", choose_size: "Choisir la taille", show_size: "Afficher la taille (0M - 12M)", decrease_quantity: "Diminuer la quantité", increase_quantity: "Augmenter la quantité", excel_category: "Catégorie", excel_size: "Taille", excel_line_total: "Total de la ligne (DH)", excel_notes: "Notes", excel_status: "Statut", unit_price: "Prix unitaire", subtotal: "Sous-total",
                 signature: "Développé par papa ❤️"
             },
             ma: {
@@ -1323,6 +1322,7 @@ input.edit-note::placeholder {
                 final_excel: "Excel Final List",
                 final_store: "Magasin",
                 final_price: "Taman",
+                sort_title: "Retteb 7sab", sort_default: "Tartib l3adi", sort_name: "Smia (A - Z)", sort_price_asc: "Taman (mn rkhis lghali)", sort_price_desc: "Taman (mn ghali lrkhis)", cancel: "Lghi", ok: "Wakha", sync_reset: "Ms7 kolchi", size_placeholder: "Taille / l3mer", size_newborn: "Mawloud", size_months: "chhor", choose_size: "Khtar taille", show_size: "Beyen taille (0M - 12M)", decrease_quantity: "N9es l3adad", increase_quantity: "Zid l3adad", excel_category: "Catégorie", excel_size: "Taille", excel_line_total: "Total dyal larticle (DH)", excel_notes: "Mola7adat", excel_status: "L7ala", unit_price: "Taman dyal l wa7da", subtotal: "Total",
                 signature: "Msayeb mn 3nd Papa ❤️"
             },
             en: {
@@ -1362,6 +1362,7 @@ input.edit-note::placeholder {
                 final_excel: "Final List Excel",
                 final_store: "Store",
                 final_price: "Price",
+                sort_title: "Sort by", sort_default: "Default order", sort_name: "Name (A - Z)", sort_price_asc: "Price (low to high)", sort_price_desc: "Price (high to low)", cancel: "Cancel", ok: "OK", sync_reset: "Reset everything", size_placeholder: "Size / Age", size_newborn: "Newborn", size_months: "months", choose_size: "Choose a size", show_size: "Show size (0M - 12M)", decrease_quantity: "Decrease quantity", increase_quantity: "Increase quantity", excel_category: "Category", excel_size: "Size", excel_line_total: "Line Total (DH)", excel_notes: "Notes", excel_status: "Status", unit_price: "Unit Price", subtotal: "Subtotal",
                 signature: "Developed by daddy ❤️"
             }
         };
@@ -1493,7 +1494,7 @@ items = items.map(i => ({
                     btnCancel.innerText = t('img_cancel');
                 }
 
-                btnOk.innerText = 'OK';
+                btnOk.innerText = t('ok');
 
                 // Apply the mobile keyboard layout only to Add Category
                 let visualViewportRef = null;
@@ -1699,19 +1700,38 @@ items = items.map(i => ({
         const updateUITexts = () => {
             const langBtn = document.getElementById('lang-btn');
             if (langBtn) langBtn.innerText = currentLang;
-            ['app_title', 'app_subtitle', 'summary_title', 'btn_pdf', 'btn_excel', 'footer_total', 'img_source', 'img_cam', 'img_gal', 'img_cancel', 'sync_title', 'sync_desc', 'sync_export', 'sync_import', 'sync_close', 'btn_wishlist', 'btn_valise_share', 'preview_close', 'signature'].forEach(id => {
-                const el = document.getElementById(`t_${id}`);
-                if(el) el.innerText = t(id);
+            [
+                'app_title', 'app_subtitle', 'summary_title', 'btn_pdf',
+                'btn_excel', 'footer_total', 'img_source', 'img_cam',
+                'img_gal', 'img_cancel', 'sync_title', 'sync_desc',
+                'sync_export', 'sync_import', 'sync_reset', 'sync_close',
+                'btn_wishlist', 'btn_valise_share', 'preview_close', 'signature'
+            ].forEach(id => {
+                const el = document.getElementById('t_' + id);
+                if (el) el.innerText = t(id);
             });
             const searchInput = document.getElementById('search-input');
             if (searchInput) searchInput.placeholder = t('placeholder_search');
-
-            // Mise à jour des boutons de filtres
-            document.getElementById('btn-filter-all').innerText = t('filter_all');
-            document.getElementById('btn-filter-todo').innerText = t('filter_todo');
-            document.getElementById('btn-filter-bought').innerText = t('filter_bought');
-            document.getElementById('btn-filter-prio').innerText = t('filter_prio');
-            document.getElementById('btn-filter-valise').innerText = t('filter_valise');
+            const labels = {
+                'btn-filter-all': 'filter_all',
+                'btn-filter-todo': 'filter_todo',
+                'btn-filter-bought': 'filter_bought',
+                'btn-filter-prio': 'filter_prio',
+                'btn-filter-valise': 'filter_valise',
+                'sort-sheet-title': 'sort_title',
+                'sort-default-label': 'sort_default',
+                'sort-name-label': 'sort_name',
+                'sort-price-asc-label': 'sort_price_asc',
+                'sort-price-desc-label': 'sort_price_desc',
+                'sort-cancel-label': 'cancel',
+                'dialog-btn-cancel': 'cancel',
+                'dialog-btn-ok': 'ok',
+                'cat-size-label': 'show_size'
+            };
+            Object.entries(labels).forEach(([id, key]) => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = t(key);
+            });
         };
 
         const saveData = () => {
@@ -2173,12 +2193,12 @@ filteredItems.forEach((item) => {
 const showSizeDropdown = sizeCategories.includes(item.cat);
 const currentItemSize = item.size ?? '';
 const sizeOptions = [
-    { value: '', label: 'Taille / Âge' },
-    { value: '0M', label: '0M - Nouveau-né' },
-    { value: '3M', label: '3M - 3 mois' },
-    { value: '6M', label: '6M - 6 mois' },
-    { value: '9M', label: '9M - 9 mois' },
-    { value: '12M', label: '12M - 12 mois' }
+    { value: '', label: t('size_placeholder') },
+    { value: '0M', label: '0M - ' + t('size_newborn') },
+    { value: '3M', label: '3M - 3 ' + t('size_months') },
+    { value: '6M', label: '6M - 6 ' + t('size_months') },
+    { value: '9M', label: '9M - 9 ' + t('size_months') },
+    { value: '12M', label: '12M - 12 ' + t('size_months') }
 ];
 
 const selectedSizeOption = sizeOptions.find(
@@ -2228,7 +2248,7 @@ const sizeDropdownHTML = showSizeDropdown ? `
             class="size-dropdown-menu"
             id="size-menu-${item.id}"
             role="listbox"
-            aria-label="Choisir la taille"
+            aria-label="${t('choose_size')}"
             hidden
         >
             ${sizeDropdownOptionsHTML}
@@ -2291,7 +2311,7 @@ const sizeDropdownHTML = showSizeDropdown ? `
                                         type="button"
                                         class="quantity-step-btn"
                                         onclick="changeQuantity('${item.id}', -1)"
-                                        aria-label="Decrease quantity"
+                                        aria-label="${t('decrease_quantity')}"
                                     >−</button>
 
                                     <input
@@ -2308,7 +2328,7 @@ const sizeDropdownHTML = showSizeDropdown ? `
                                         type="button"
                                         class="quantity-step-btn"
                                         onclick="changeQuantity('${item.id}', 1)"
-                                        aria-label="Increase quantity"
+                                        aria-label="${t('increase_quantity')}"
                                     >+</button>
                                 </div>
                             </div>
@@ -3199,14 +3219,14 @@ const sizeDropdownHTML = showSizeDropdown ? `
             const rows = [
                 [
                     t('table_article'),
-                    'Category',
-                    'Size',
+                    t('excel_category'),
+                    t('excel_size'),
                     t('final_store'),
                     t('quantity_label'),
                     t('final_price') + ' (DH)',
-                    'Line Total (DH)',
-                    'Notes',
-                    'Status'
+                    t('excel_line_total'),
+                    t('excel_notes'),
+                    t('excel_status')
                 ]
             ];
 
@@ -3301,8 +3321,8 @@ const sizeDropdownHTML = showSizeDropdown ? `
                 message += `${index + 1}. ${item.name}\n`;
                 message += `🏬 ${entry.store.name}\n`;
                 message += `📦 ${t('quantity_label')}: ${entry.quantity}\n`;
-                message += `💰 Unit Price: ${entry.price.toFixed(2)} DH\n`;
-                message += `🧾 Subtotal: ${entry.lineTotal.toFixed(2)} DH\n`;
+                message += `💰 ${t('unit_price')}: ${entry.price.toFixed(2)} DH\n`;
+                message += `🧾 ${t('subtotal')}: ${entry.lineTotal.toFixed(2)} DH\n`;
 
                 
 
@@ -3322,7 +3342,7 @@ const sizeDropdownHTML = showSizeDropdown ? `
             message += `--------------------\n`;
             message += `${t('final_total')}: ${total.toFixed(2)} DH\n`;
             message += `${t('final_remaining')}: ${(budget - total).toFixed(2)} DH\n`;
-            message += `Budget: ${budget.toFixed(2)} DH`;
+            message += `${t('budget_lbl')}: ${budget.toFixed(2)} DH`;
 
             window.open(
                 `https://wa.me/?text=${encodeURIComponent(message)}`,
@@ -3369,7 +3389,7 @@ const sizeDropdownHTML = showSizeDropdown ? `
                     <div id="cat-size-container" style="display: none; margin-top: 12px; align-items: center; justify-content: center; gap: 8px;">
                     <input type="checkbox" id="cat-size-checkbox" style="width: 18px; height: 18px; cursor: pointer; accent-color: #D8382B;">
                     <label for="cat-size-checkbox" style="cursor: pointer; font-size: 14px; color: var(--text-main);">
-                    Afficher Taille (0M - 12M)
+                    <span id="cat-size-label"></span>
                     </label>
                     </div>
             <div class="dialog-btns">
