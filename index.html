@@ -1361,7 +1361,7 @@ input.edit-note::placeholder {
                 statistics_breakdown: "Répartition du budget par catégorie",
                 statistics_empty: "Ajoutez des prix aux articles pour afficher la répartition par catégorie.",
                 statistics_final: "Total de la Final List",
-                statistics_final_count: "Articles sélectionnés",
+                statistics_final_count: "Articles dans la Final List",
                 statistics_alert_ok: "Budget sous contrôle",
                 statistics_alert_ok_message: "Il vous reste {amount} DH avant d’atteindre votre budget.",
                 statistics_alert_warning: "Attention : budget bientôt atteint",
@@ -1419,7 +1419,7 @@ input.edit-note::placeholder {
                 statistics_breakdown: "T9sim lbudget 3la 7sab categories",
                 statistics_empty: "Zid taman lchi produits bach yban lik t9sim lbudget 3la categories.",
                 statistics_final: "Total dyal Final List",
-                statistics_final_count: "Articles mkhtarin",
+                statistics_final_count: "Articles f Final List",
                 statistics_alert_ok: "Lbudget mazal mzyan",
                 statistics_alert_ok_message: "Ba9i lik {amount} DH bach twsel lbudget dyalk.",
                 statistics_alert_warning: "T9rebti twsel lbudget",
@@ -1477,7 +1477,7 @@ input.edit-note::placeholder {
                 statistics_breakdown: "Budget breakdown by category",
                 statistics_empty: "Add prices to your items to see the category breakdown.",
                 statistics_final: "Final List total",
-                statistics_final_count: "Selected items",
+                statistics_final_count: "Items in Final List",
                 statistics_alert_ok: "Budget on track",
                 statistics_alert_ok_message: "You have {amount} DH left before reaching your budget.",
                 statistics_alert_warning: "You are nearing your budget",
@@ -2585,7 +2585,7 @@ const sizeDropdownHTML = showSizeDropdown ? `
                 budgetAlertMessage.textContent = t('statistics_alert_ok_message').replace('{amount}', moneyFormat(Math.max(0, safeBudget - estimatedTotal)));
             }
             document.getElementById('statistics-progress-label').textContent = t('statistics_progress');
-            document.getElementById('statistics-progress-value').textContent = `${boughtCount}/${totalCount} (${progress}%)`;
+            document.getElementById('statistics-progress-value').textContent = `${progress}%`;
             document.getElementById('statistics-progress-fill').style.width = progress + '%';
             document.getElementById('statistics-remaining-label').textContent = t('statistics_remaining');
             document.getElementById('statistics-remaining-value').textContent = remainingCount;
