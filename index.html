@@ -854,7 +854,7 @@ input.edit-note::placeholder {
         .statistics-hero-label { display: block; position: relative; z-index: 1; font-size: 13px; font-weight: 700; opacity: .88; }
         .statistics-hero-value { display: block; position: relative; z-index: 1; margin: 7px 0 4px; font-size: clamp(28px, 6vw, 38px); line-height: 1.15; font-weight: 900; letter-spacing: -.5px; overflow-wrap: anywhere; }
         .statistics-hero-caption { position: relative; z-index: 1; font-size: 12px; opacity: .82; }
-        .statistics-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; margin: 0 0 22px; }
+        .statistics-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0 0 22px; }
         .statistics-card { min-width: 0; padding: 14px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 3px 12px rgba(0,0,0,.035); }
         .statistics-card-label { display: block; color: var(--text-muted); font-size: 11px; line-height: 1.35; font-weight: 700; margin-bottom: 8px; }
         .statistics-card-value { display: block; color: var(--primary); font-size: clamp(18px, 3.5vw, 23px); font-weight: 850; overflow-wrap: anywhere; }
@@ -872,8 +872,9 @@ input.edit-note::placeholder {
         .statistics-category-track { height: 7px; flex: 1; overflow: hidden; background: var(--input-bg); border-radius: 99px; }
         .statistics-category-fill { height: 100%; width: 0; border-radius: inherit; transition: width .35s ease; }
         .statistics-empty { padding: 25px 15px; color: var(--text-muted); text-align: center; font-size: 13px; line-height: 1.5; }
-        @media (max-width: 620px) { .statistics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .statistics-breakdown-layout { grid-template-columns: 1fr; } .statistics-chart-panel { max-width: 260px; } }
-        @media (max-width: 360px) { .statistics-grid { grid-template-columns: 1fr; } }
+        @media (min-width: 621px) { .statistics-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+        @media (max-width: 620px) { .statistics-breakdown-layout { grid-template-columns: 1fr; gap: 12px; padding: 13px; } .statistics-chart-panel { max-width: 240px; } .statistics-card { padding: 12px; } .statistics-card-label { font-size: 10px; } }
+        @media (max-width: 360px) { .statistics-grid { gap: 8px; } .statistics-card-value { font-size: 17px; } }
 
         .total-footer { position: fixed; bottom: 0; left: 0; right: 0; background: var(--secondary); color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 15px rgba(0,0,0,0.15); z-index: 1000; border-top-left-radius: 20px; border-top-right-radius: 20px; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); transition: background 0.3s; }
         .total-label { font-size: 13px; opacity: 0.8; }
@@ -1178,6 +1179,7 @@ input.edit-note::placeholder {
             </div>
             <div class="statistics-card"><span class="statistics-card-label" id="statistics-remaining-label"></span><strong class="statistics-card-value" id="statistics-remaining-value">0</strong></div>
             <div class="statistics-card"><span class="statistics-card-label" id="statistics-final-label"></span><strong class="statistics-card-value" id="statistics-final-value">0.00 DH</strong></div>
+            <div class="statistics-card"><span class="statistics-card-label" id="statistics-final-count-label"></span><strong class="statistics-card-value" id="statistics-final-count-value">0</strong></div>
         </div>
         <h3 class="statistics-section-title" id="statistics-breakdown-title"></h3>
         <div class="statistics-breakdown-layout">
@@ -1334,7 +1336,8 @@ input.edit-note::placeholder {
                 statistics_total_caption: "Total estimé selon les meilleurs prix disponibles",
                 statistics_breakdown: "Répartition du budget par catégorie",
                 statistics_empty: "Ajoutez des prix aux articles pour afficher la répartition par catégorie.",
-                statistics_final: "Total de la Final List"
+                statistics_final: "Total de la Final List",
+                statistics_final_count: "Articles sélectionnés"
             },
             ma: {
                 app_title: "Petits Jours", app_subtitle: "Gad l'budget o les magasins",
@@ -1383,7 +1386,8 @@ input.edit-note::placeholder {
                 statistics_total_caption: "Lmajmou3 ta9ribi 3la 7sab a7san taman",
                 statistics_breakdown: "T9sim lbudget 3la 7sab categories",
                 statistics_empty: "Zid taman lchi produits bach yban lik t9sim lbudget 3la categories.",
-                statistics_final: "Total dyal Final List"
+                statistics_final: "Total dyal Final List",
+                statistics_final_count: "Articles mkhtarin"
             },
             en: {
                 app_title: "Petits Jours", app_subtitle: "Manage stores and budget",
@@ -1432,7 +1436,8 @@ input.edit-note::placeholder {
                 statistics_total_caption: "Based on the lowest available price for each item",
                 statistics_breakdown: "Budget breakdown by category",
                 statistics_empty: "Add prices to your items to see the category breakdown.",
-                statistics_final: "Final List total"
+                statistics_final: "Final List total",
+                statistics_final_count: "Selected items"
             }
         };
 
@@ -2466,6 +2471,7 @@ const sizeDropdownHTML = showSizeDropdown ? `
             const boughtCount = items.filter(item => !!item.bought).length;
             const totalCount = items.length;
             const remainingCount = Math.max(0, totalCount - boughtCount);
+            const finalSelectedCount = items.filter(item => item.finalStoreId && stores.some(store => store.id === item.finalStoreId)).length;
             const progress = totalCount > 0 ? Math.round((boughtCount / totalCount) * 100) : 0;
             let estimatedTotal = 0;
             let finalTotal = 0;
@@ -2506,6 +2512,8 @@ const sizeDropdownHTML = showSizeDropdown ? `
             document.getElementById('statistics-remaining-value').textContent = remainingCount;
             document.getElementById('statistics-final-label').textContent = t('statistics_final');
             document.getElementById('statistics-final-value').textContent = finalTotal.toLocaleString(currentLang === 'en' ? 'en-US' : 'fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' DH';
+            document.getElementById('statistics-final-count-label').textContent = t('statistics_final_count');
+            document.getElementById('statistics-final-count-value').textContent = finalSelectedCount;
             document.getElementById('statistics-breakdown-title').textContent = t('statistics_breakdown');
 
             const sortedCategories = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
