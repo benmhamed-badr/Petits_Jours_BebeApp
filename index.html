@@ -849,14 +849,31 @@ input.edit-note::placeholder {
         .bought-badge { display: inline-block; background: var(--success); color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle;}
 
         /* Chart Wrapper */
-        .chart-wrapper { max-width: 560px; margin: 0 auto 20px auto; padding: 18px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
-        .statistics-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 15px 0 20px; }
-        .statistics-card { min-width: 0; padding: 15px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-        .statistics-card-label { display: block; color: var(--text-muted); font-size: 12px; font-weight: 700; margin-bottom: 8px; }
-        .statistics-card-value { display: block; color: var(--primary); font-size: clamp(19px, 4vw, 25px); font-weight: 800; overflow-wrap: anywhere; }
-        .statistics-progress-track { height: 9px; margin-top: 10px; overflow: hidden; background: var(--input-bg); border-radius: 99px; }
+        .statistics-hero { position: relative; overflow: hidden; margin: 12px 0 16px; padding: 22px; border-radius: 18px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; box-shadow: 0 8px 22px rgba(0,0,0,.12); }
+        .statistics-hero::after { content: ""; position: absolute; width: 150px; height: 150px; border-radius: 50%; right: -48px; top: -68px; background: rgba(255,255,255,.09); }
+        .statistics-hero-label { display: block; position: relative; z-index: 1; font-size: 13px; font-weight: 700; opacity: .88; }
+        .statistics-hero-value { display: block; position: relative; z-index: 1; margin: 7px 0 4px; font-size: clamp(28px, 6vw, 38px); line-height: 1.15; font-weight: 900; letter-spacing: -.5px; overflow-wrap: anywhere; }
+        .statistics-hero-caption { position: relative; z-index: 1; font-size: 12px; opacity: .82; }
+        .statistics-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; margin: 0 0 22px; }
+        .statistics-card { min-width: 0; padding: 14px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 3px 12px rgba(0,0,0,.035); }
+        .statistics-card-label { display: block; color: var(--text-muted); font-size: 11px; line-height: 1.35; font-weight: 700; margin-bottom: 8px; }
+        .statistics-card-value { display: block; color: var(--primary); font-size: clamp(18px, 3.5vw, 23px); font-weight: 850; overflow-wrap: anywhere; }
+        .statistics-progress-track { height: 8px; margin-top: 10px; overflow: hidden; background: var(--input-bg); border-radius: 99px; }
         .statistics-progress-fill { height: 100%; width: 0; background: var(--success); border-radius: inherit; transition: width .3s ease; }
-        @media (max-width: 380px) { .statistics-grid { grid-template-columns: 1fr; } }
+        .statistics-section-title { margin: 8px 0 12px; color: var(--text-main); font-size: 16px; font-weight: 800; }
+        .statistics-breakdown-layout { display: grid; grid-template-columns: minmax(220px, .85fr) minmax(0, 1.15fr); align-items: center; gap: 16px; padding: 16px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 3px 12px rgba(0,0,0,.035); }
+        .statistics-chart-panel { min-width: 0; width: 100%; max-width: 320px; margin: 0 auto; }
+        .statistics-category-list { display: flex; flex-direction: column; gap: 15px; min-width: 0; }
+        .statistics-category-row { min-width: 0; }
+        .statistics-category-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 7px; }
+        .statistics-category-name { min-width: 0; color: var(--text-main); font-size: 13px; font-weight: 750; overflow-wrap: anywhere; }
+        .statistics-category-amount { flex-shrink: 0; color: var(--text-main); font-size: 13px; font-weight: 800; white-space: nowrap; }
+        .statistics-category-bottom { display: flex; justify-content: space-between; align-items: center; gap: 8px; color: var(--text-muted); font-size: 11px; }
+        .statistics-category-track { height: 7px; flex: 1; overflow: hidden; background: var(--input-bg); border-radius: 99px; }
+        .statistics-category-fill { height: 100%; width: 0; border-radius: inherit; transition: width .35s ease; }
+        .statistics-empty { padding: 25px 15px; color: var(--text-muted); text-align: center; font-size: 13px; line-height: 1.5; }
+        @media (max-width: 620px) { .statistics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .statistics-breakdown-layout { grid-template-columns: 1fr; } .statistics-chart-panel { max-width: 260px; } }
+        @media (max-width: 360px) { .statistics-grid { grid-template-columns: 1fr; } }
 
         .total-footer { position: fixed; bottom: 0; left: 0; right: 0; background: var(--secondary); color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 15px rgba(0,0,0,0.15); z-index: 1000; border-top-left-radius: 20px; border-top-right-radius: 20px; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); transition: background 0.3s; }
         .total-label { font-size: 13px; opacity: 0.8; }
@@ -1147,7 +1164,12 @@ input.edit-note::placeholder {
 
     
     <div class="content hidden" id="statistics-content">
-        <h2 style="color: var(--primary); text-align: center;" id="statistics-heading">📈 Statistics</h2>
+        <h2 style="color: var(--primary); text-align: center; margin-bottom: 14px;" id="statistics-heading">📈 Statistics</h2>
+        <section class="statistics-hero">
+            <span class="statistics-hero-label" id="statistics-estimated-label"></span>
+            <strong class="statistics-hero-value" id="statistics-estimated-value">0.00 DH</strong>
+            <span class="statistics-hero-caption" id="statistics-total-caption"></span>
+        </section>
         <div class="statistics-grid">
             <div class="statistics-card">
                 <span class="statistics-card-label" id="statistics-progress-label"></span>
@@ -1155,10 +1177,13 @@ input.edit-note::placeholder {
                 <div class="statistics-progress-track"><div class="statistics-progress-fill" id="statistics-progress-fill"></div></div>
             </div>
             <div class="statistics-card"><span class="statistics-card-label" id="statistics-remaining-label"></span><strong class="statistics-card-value" id="statistics-remaining-value">0</strong></div>
-            <div class="statistics-card"><span class="statistics-card-label" id="statistics-estimated-label"></span><strong class="statistics-card-value" id="statistics-estimated-value">0.00 DH</strong></div>
             <div class="statistics-card"><span class="statistics-card-label" id="statistics-final-label"></span><strong class="statistics-card-value" id="statistics-final-value">0.00 DH</strong></div>
         </div>
-        <div class="chart-wrapper hidden" id="chart-wrapper-el"><canvas id="budgetChart"></canvas></div>
+        <h3 class="statistics-section-title" id="statistics-breakdown-title"></h3>
+        <div class="statistics-breakdown-layout">
+            <div class="statistics-chart-panel"><canvas id="budgetChart"></canvas></div>
+            <div class="statistics-category-list" id="statistics-category-list"></div>
+        </div>
     </div>
 
     <div class="content hidden" id="final-list-content">
@@ -1305,7 +1330,10 @@ input.edit-note::placeholder {
                 statistics_title: "Statistiques & Analyse",
                 statistics_progress: "Progression des achats",
                 statistics_remaining: "Articles restants",
-                statistics_estimated: "Budget estimé (meilleurs prix)",
+                statistics_estimated: "Budget estimé",
+                statistics_total_caption: "Total estimé selon les meilleurs prix disponibles",
+                statistics_breakdown: "Répartition du budget par catégorie",
+                statistics_empty: "Ajoutez des prix aux articles pour afficher la répartition par catégorie.",
                 statistics_final: "Total de la Final List"
             },
             ma: {
@@ -1351,7 +1379,10 @@ input.edit-note::placeholder {
                 statistics_title: "I7sa2iyat o Tahlil",
                 statistics_progress: "T9addom chra",
                 statistics_remaining: "Articles ba9yin",
-                statistics_estimated: "Budget ta9ribi (a7san taman)",
+                statistics_estimated: "Budget ta9ribi",
+                statistics_total_caption: "Lmajmou3 ta9ribi 3la 7sab a7san taman",
+                statistics_breakdown: "T9sim lbudget 3la 7sab categories",
+                statistics_empty: "Zid taman lchi produits bach yban lik t9sim lbudget 3la categories.",
                 statistics_final: "Total dyal Final List"
             },
             en: {
@@ -1397,7 +1428,10 @@ input.edit-note::placeholder {
                 statistics_title: "Statistics & Insights",
                 statistics_progress: "Shopping progress",
                 statistics_remaining: "Items remaining",
-                statistics_estimated: "Estimated budget (best prices)",
+                statistics_estimated: "Estimated total",
+                statistics_total_caption: "Based on the lowest available price for each item",
+                statistics_breakdown: "Budget breakdown by category",
+                statistics_empty: "Add prices to your items to see the category breakdown.",
                 statistics_final: "Final List total"
             }
         };
@@ -2436,65 +2470,135 @@ const sizeDropdownHTML = showSizeDropdown ? `
             let estimatedTotal = 0;
             let finalTotal = 0;
             const categoryTotals = {};
+            const chartColors = ['#3498DB', '#2ECC71', '#F1C40F', '#E74C3C', '#9B59B6', '#34495E', '#1ABC9C', '#E67E22', '#16A085', '#D35400'];
 
             items.forEach(item => {
                 const quantity = Math.max(1, parseInt(item.quantity, 10) || 1);
                 let minPrice = null;
+
                 stores.forEach(store => {
                     const price = parseFloat((prices[store.id] || {})[item.id]);
-                    if (!isNaN(price) && price > 0 && (minPrice === null || price < minPrice)) minPrice = price;
+                    if (!isNaN(price) && price > 0 && (minPrice === null || price < minPrice)) {
+                        minPrice = price;
+                    }
                 });
+
                 if (minPrice !== null) {
                     const lineTotal = minPrice * quantity;
                     estimatedTotal += lineTotal;
                     const categoryName = (item.cat || t('no_items')).split(' (')[0];
                     categoryTotals[categoryName] = (categoryTotals[categoryName] || 0) + lineTotal;
                 }
+
                 if (item.finalStoreId && stores.some(store => store.id === item.finalStoreId)) {
                     const selectedPrice = parseFloat((prices[item.finalStoreId] || {})[item.id]) || 0;
                     finalTotal += selectedPrice * quantity;
                 }
             });
 
+            document.getElementById('statistics-estimated-label').textContent = t('statistics_estimated');
+            document.getElementById('statistics-estimated-value').textContent = estimatedTotal.toLocaleString(currentLang === 'en' ? 'en-US' : 'fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' DH';
+            document.getElementById('statistics-total-caption').textContent = t('statistics_total_caption');
             document.getElementById('statistics-progress-label').textContent = t('statistics_progress');
             document.getElementById('statistics-progress-value').textContent = `${boughtCount}/${totalCount} (${progress}%)`;
             document.getElementById('statistics-progress-fill').style.width = progress + '%';
             document.getElementById('statistics-remaining-label').textContent = t('statistics_remaining');
             document.getElementById('statistics-remaining-value').textContent = remainingCount;
-            document.getElementById('statistics-estimated-label').textContent = t('statistics_estimated');
-            document.getElementById('statistics-estimated-value').textContent = estimatedTotal.toFixed(2) + ' DH';
             document.getElementById('statistics-final-label').textContent = t('statistics_final');
-            document.getElementById('statistics-final-value').textContent = finalTotal.toFixed(2) + ' DH';
+            document.getElementById('statistics-final-value').textContent = finalTotal.toLocaleString(currentLang === 'en' ? 'en-US' : 'fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' DH';
+            document.getElementById('statistics-breakdown-title').textContent = t('statistics_breakdown');
 
-            const chartWrapper = document.getElementById('chart-wrapper-el');
-            if (Object.keys(categoryTotals).length > 0) {
-                chartWrapper.classList.remove('hidden');
+            const sortedCategories = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
+            const categoryList = document.getElementById('statistics-category-list');
+            categoryList.innerHTML = '';
+
+            if (sortedCategories.length) {
+                sortedCategories.forEach(([categoryName, amount], index) => {
+                    const percentage = estimatedTotal > 0 ? (amount / estimatedTotal) * 100 : 0;
+                    const color = chartColors[index % chartColors.length];
+
+                    const row = document.createElement('div');
+                    row.className = 'statistics-category-row';
+
+                    const top = document.createElement('div');
+                    top.className = 'statistics-category-top';
+
+                    const name = document.createElement('span');
+                    name.className = 'statistics-category-name';
+                    name.textContent = categoryName;
+
+                    const value = document.createElement('strong');
+                    value.className = 'statistics-category-amount';
+                    value.textContent = amount.toLocaleString(currentLang === 'en' ? 'en-US' : 'fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' DH';
+
+                    top.append(name, value);
+
+                    const bottom = document.createElement('div');
+                    bottom.className = 'statistics-category-bottom';
+
+                    const track = document.createElement('div');
+                    track.className = 'statistics-category-track';
+
+                    const fill = document.createElement('div');
+                    fill.className = 'statistics-category-fill';
+                    fill.style.width = percentage + '%';
+                    fill.style.background = color;
+                    track.appendChild(fill);
+
+                    const percent = document.createElement('span');
+                    percent.textContent = Math.round(percentage) + '%';
+
+                    bottom.append(track, percent);
+                    row.append(top, bottom);
+                    categoryList.appendChild(row);
+                });
+
                 if (window.budgetChartInstance) window.budgetChartInstance.destroy();
                 window.budgetChartInstance = new Chart(document.getElementById('budgetChart'), {
                     type: 'doughnut',
                     data: {
-                        labels: Object.keys(categoryTotals),
+                        labels: sortedCategories.map(entry => entry[0]),
                         datasets: [{
-                            data: Object.values(categoryTotals),
-                            backgroundColor: ['#3498DB', '#2ECC71', '#F1C40F', '#E74C3C', '#9B59B6', '#34495E', '#1ABC9C'],
-                            borderWidth: 2,
-                            borderColor: isDarkMode ? '#1E1E1E' : '#FFFFFF'
+                            data: sortedCategories.map(entry => entry[1]),
+                            backgroundColor: sortedCategories.map((entry, index) => chartColors[index % chartColors.length]),
+                            borderWidth: 3,
+                            borderColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
+                            hoverOffset: 5
                         }]
                     },
                     options: {
                         responsive: true,
+                        maintainAspectRatio: true,
+                        cutout: '68%',
                         plugins: {
-                            legend: { position: 'bottom', labels: { color: isDarkMode ? '#E0E0E0' : '#333333' } },
-                            title: { display: true, text: t('chart_title'), color: isDarkMode ? '#E0E0E0' : '#333333', font: { size: 16 } }
+                            legend: { display: false, labels: { color: isDarkMode ? '#E0E0E0' : '#333333' } },
+                            title: { display: false, text: t('chart_title'), color: isDarkMode ? '#E0E0E0' : '#333333', font: { size: 16 } },
+                            tooltip: {
+                                callbacks: {
+                                    label: (context) => {
+                                        const value = Number(context.raw) || 0;
+                                        const percentage = estimatedTotal > 0 ? (value / estimatedTotal) * 100 : 0;
+                                        return ` ${value.toFixed(2)} DH · ${Math.round(percentage)}%`;
+                                    }
+                                }
+                            }
                         }
                     }
                 });
             } else {
-                chartWrapper.classList.add('hidden');
+                categoryList.innerHTML = '';
+                const empty = document.createElement('div');
+                empty.className = 'statistics-empty';
+                empty.textContent = t('statistics_empty');
+                categoryList.appendChild(empty);
+
                 if (window.budgetChartInstance) {
                     window.budgetChartInstance.destroy();
                     window.budgetChartInstance = null;
                 }
+                const canvas = document.getElementById('budgetChart');
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
         };
 
