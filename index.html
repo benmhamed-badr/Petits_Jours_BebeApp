@@ -2554,16 +2554,16 @@ const sizeDropdownHTML = showSizeDropdown ? `
             const moneyFormat = value => value.toLocaleString(currentLang === 'en' ? 'en-US' : 'fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
             budgetAlert.classList.remove('statistics-alert-ok', 'statistics-alert-warning', 'statistics-alert-danger');
-            if (budgetPercent >= 100) {
+            if (budgetPercent > 100) {
                 budgetAlert.classList.add('statistics-alert-danger');
                 budgetAlertIcon.textContent = '!';
                 budgetAlertTitle.textContent = t('statistics_alert_exceeded');
                 budgetAlertMessage.textContent = t('statistics_alert_exceeded_message').replace('{amount}', moneyFormat(estimatedTotal - safeBudget));
-            } else if (budgetPercent >= 80) {
+            } else if (budgetPercent > 80) {
                 budgetAlert.classList.add('statistics-alert-warning');
                 budgetAlertIcon.textContent = '!';
                 budgetAlertTitle.textContent = t('statistics_alert_warning');
-                budgetAlertMessage.textContent = t('statistics_alert_warning_message').replace('{percent}', Math.round(budgetPercent)).replace('{amount}', moneyFormat(safeBudget - estimatedTotal));
+                budgetAlertMessage.textContent = t('statistics_alert_warning_message').replace('{percent}', Math.ceil(budgetPercent)).replace('{amount}', moneyFormat(safeBudget - estimatedTotal));
             } else {
                 budgetAlert.classList.add('statistics-alert-ok');
                 budgetAlertIcon.textContent = '✓';
