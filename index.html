@@ -849,7 +849,14 @@ input.edit-note::placeholder {
         .bought-badge { display: inline-block; background: var(--success); color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle;}
 
         /* Chart Wrapper */
-        .chart-wrapper { max-width: 400px; margin: 0 auto 20px auto; padding: 15px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .chart-wrapper { max-width: 560px; margin: 0 auto 20px auto; padding: 18px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .statistics-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 15px 0 20px; }
+        .statistics-card { min-width: 0; padding: 15px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .statistics-card-label { display: block; color: var(--text-muted); font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+        .statistics-card-value { display: block; color: var(--primary); font-size: clamp(19px, 4vw, 25px); font-weight: 800; overflow-wrap: anywhere; }
+        .statistics-progress-track { height: 9px; margin-top: 10px; overflow: hidden; background: var(--input-bg); border-radius: 99px; }
+        .statistics-progress-fill { height: 100%; width: 0; background: var(--success); border-radius: inherit; transition: width .3s ease; }
+        @media (max-width: 380px) { .statistics-grid { grid-template-columns: 1fr; } }
 
         .total-footer { position: fixed; bottom: 0; left: 0; right: 0; background: var(--secondary); color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 15px rgba(0,0,0,0.15); z-index: 1000; border-top-left-radius: 20px; border-top-right-radius: 20px; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); transition: background 0.3s; }
         .total-label { font-size: 13px; opacity: 0.8; }
@@ -1112,11 +1119,6 @@ input.edit-note::placeholder {
     <div class="content hidden" id="summary-content">
         <h2 style="color: var(--primary); text-align: center;" id="t_summary_title">📊 Résumé & Comparaison</h2>
         
-        <!-- Graphique (Statistiques) -->
-        <div class="chart-wrapper hidden" id="chart-wrapper-el">
-            <canvas id="budgetChart"></canvas>
-        </div>
-
         <div class="summary-container">
             <table class="summary-table" id="summary-table"></table>
         </div>
@@ -1144,6 +1146,21 @@ input.edit-note::placeholder {
 
 
     
+    <div class="content hidden" id="statistics-content">
+        <h2 style="color: var(--primary); text-align: center;" id="statistics-heading">📈 Statistics</h2>
+        <div class="statistics-grid">
+            <div class="statistics-card">
+                <span class="statistics-card-label" id="statistics-progress-label"></span>
+                <strong class="statistics-card-value" id="statistics-progress-value">0%</strong>
+                <div class="statistics-progress-track"><div class="statistics-progress-fill" id="statistics-progress-fill"></div></div>
+            </div>
+            <div class="statistics-card"><span class="statistics-card-label" id="statistics-remaining-label"></span><strong class="statistics-card-value" id="statistics-remaining-value">0</strong></div>
+            <div class="statistics-card"><span class="statistics-card-label" id="statistics-estimated-label"></span><strong class="statistics-card-value" id="statistics-estimated-value">0.00 DH</strong></div>
+            <div class="statistics-card"><span class="statistics-card-label" id="statistics-final-label"></span><strong class="statistics-card-value" id="statistics-final-value">0.00 DH</strong></div>
+        </div>
+        <div class="chart-wrapper hidden" id="chart-wrapper-el"><canvas id="budgetChart"></canvas></div>
+    </div>
+
     <div class="content hidden" id="final-list-content">
         <h2 style="color: var(--primary); text-align: center;" id="final-list-heading">
             🛒 Final Shopping List
@@ -1283,7 +1300,13 @@ input.edit-note::placeholder {
                 final_store: "Magasin",
                 final_price: "Prix",
                 sort_title: "Trier par", sort_default: "Ordre par défaut", sort_name: "Nom (A - Z)", sort_price_asc: "Prix (du moins cher au plus cher)", sort_price_desc: "Prix (du plus cher au moins cher)", cancel: "Annuler", ok: "OK", sync_reset: "Tout réinitialiser", size_placeholder: "Taille / Âge", size_newborn: "Nouveau-né", size_months: "mois", choose_size: "Choisir la taille", show_size: "Afficher la taille (0M - 12M)", decrease_quantity: "Diminuer la quantité", increase_quantity: "Augmenter la quantité", excel_category: "Catégorie", excel_size: "Taille", excel_line_total: "Total de la ligne (DH)", excel_notes: "Notes", excel_status: "Statut", unit_price: "Prix unitaire", subtotal: "Sous-total",
-                signature: "Développé par papa ❤️"
+                signature: "Développé par papa ❤️",
+                tab_statistics: "Statistiques",
+                statistics_title: "Statistiques & Analyse",
+                statistics_progress: "Progression des achats",
+                statistics_remaining: "Articles restants",
+                statistics_estimated: "Budget estimé (meilleurs prix)",
+                statistics_final: "Total de la Final List"
             },
             ma: {
                 app_title: "Petits Jours", app_subtitle: "Gad l'budget o les magasins",
@@ -1323,7 +1346,13 @@ input.edit-note::placeholder {
                 final_store: "Magasin",
                 final_price: "Taman",
                 sort_title: "Retteb 7sab", sort_default: "Tartib l3adi", sort_name: "Smia (A - Z)", sort_price_asc: "Taman (mn rkhis lghali)", sort_price_desc: "Taman (mn ghali lrkhis)", cancel: "Lghi", ok: "Wakha", sync_reset: "Ms7 kolchi", size_placeholder: "Taille / l3mer", size_newborn: "Mawloud", size_months: "chhor", choose_size: "Khtar taille", show_size: "Beyen taille (0M - 12M)", decrease_quantity: "N9es l3adad", increase_quantity: "Zid l3adad", excel_category: "Catégorie", excel_size: "Taille", excel_line_total: "Total dyal larticle (DH)", excel_notes: "Mola7adat", excel_status: "L7ala", unit_price: "Taman dyal l wa7da", subtotal: "Total",
-                signature: "Msayeb mn 3nd Papa ❤️"
+                signature: "Msayeb mn 3nd Papa ❤️",
+                tab_statistics: "I7sa2iyat",
+                statistics_title: "I7sa2iyat o Tahlil",
+                statistics_progress: "T9addom chra",
+                statistics_remaining: "Articles ba9yin",
+                statistics_estimated: "Budget ta9ribi (a7san taman)",
+                statistics_final: "Total dyal Final List"
             },
             en: {
                 app_title: "Petits Jours", app_subtitle: "Manage stores and budget",
@@ -1363,7 +1392,13 @@ input.edit-note::placeholder {
                 final_store: "Store",
                 final_price: "Price",
                 sort_title: "Sort by", sort_default: "Default order", sort_name: "Name (A - Z)", sort_price_asc: "Price (low to high)", sort_price_desc: "Price (high to low)", cancel: "Cancel", ok: "OK", sync_reset: "Reset everything", size_placeholder: "Size / Age", size_newborn: "Newborn", size_months: "months", choose_size: "Choose a size", show_size: "Show size (0M - 12M)", decrease_quantity: "Decrease quantity", increase_quantity: "Increase quantity", excel_category: "Category", excel_size: "Size", excel_line_total: "Line Total (DH)", excel_notes: "Notes", excel_status: "Status", unit_price: "Unit Price", subtotal: "Subtotal",
-                signature: "Developed by daddy ❤️"
+                signature: "Developed by daddy ❤️",
+                tab_statistics: "Statistics",
+                statistics_title: "Statistics & Insights",
+                statistics_progress: "Shopping progress",
+                statistics_remaining: "Items remaining",
+                statistics_estimated: "Estimated budget (best prices)",
+                statistics_final: "Final List total"
             }
         };
 
@@ -1758,7 +1793,7 @@ items = items.map(i => ({
         const updateBudgetUI = () => {
             let totalSpent = 0;
 
-            if (activeTabId === 'summary') {
+            if (activeTabId === 'summary' || activeTabId === 'statistics') {
                 items.forEach(item => {
                     let minPrice = null;
 
@@ -1942,6 +1977,16 @@ items = items.map(i => ({
                 window.scrollTo(0, 0);
             };
             container.appendChild(sumDiv);
+
+            const statisticsDiv = document.createElement('div');
+            statisticsDiv.className = `tab ${activeTabId === 'statistics' ? 'active' : ''}`;
+            statisticsDiv.innerHTML = `<i class="fas fa-chart-pie"></i> ${t('tab_statistics')}`;
+            statisticsDiv.onclick = () => {
+                activeTabId = 'statistics';
+                renderApp();
+                window.scrollTo(0, 0);
+            };
+            container.appendChild(statisticsDiv);
 
             const finalDiv = document.createElement('div');
             finalDiv.className = `tab tab-final ${activeTabId === 'final-list' ? 'active' : ''}`;
@@ -2380,6 +2425,79 @@ const sizeDropdownHTML = showSizeDropdown ? `
             }
         };
 
+        const renderStatistics = () => {
+            const heading = document.getElementById('statistics-heading');
+            if (heading) heading.textContent = t('statistics_title');
+
+            const boughtCount = items.filter(item => !!item.bought).length;
+            const totalCount = items.length;
+            const remainingCount = Math.max(0, totalCount - boughtCount);
+            const progress = totalCount > 0 ? Math.round((boughtCount / totalCount) * 100) : 0;
+            let estimatedTotal = 0;
+            let finalTotal = 0;
+            const categoryTotals = {};
+
+            items.forEach(item => {
+                const quantity = Math.max(1, parseInt(item.quantity, 10) || 1);
+                let minPrice = null;
+                stores.forEach(store => {
+                    const price = parseFloat((prices[store.id] || {})[item.id]);
+                    if (!isNaN(price) && price > 0 && (minPrice === null || price < minPrice)) minPrice = price;
+                });
+                if (minPrice !== null) {
+                    const lineTotal = minPrice * quantity;
+                    estimatedTotal += lineTotal;
+                    const categoryName = (item.cat || t('no_items')).split(' (')[0];
+                    categoryTotals[categoryName] = (categoryTotals[categoryName] || 0) + lineTotal;
+                }
+                if (item.finalStoreId && stores.some(store => store.id === item.finalStoreId)) {
+                    const selectedPrice = parseFloat((prices[item.finalStoreId] || {})[item.id]) || 0;
+                    finalTotal += selectedPrice * quantity;
+                }
+            });
+
+            document.getElementById('statistics-progress-label').textContent = t('statistics_progress');
+            document.getElementById('statistics-progress-value').textContent = `${boughtCount}/${totalCount} (${progress}%)`;
+            document.getElementById('statistics-progress-fill').style.width = progress + '%';
+            document.getElementById('statistics-remaining-label').textContent = t('statistics_remaining');
+            document.getElementById('statistics-remaining-value').textContent = remainingCount;
+            document.getElementById('statistics-estimated-label').textContent = t('statistics_estimated');
+            document.getElementById('statistics-estimated-value').textContent = estimatedTotal.toFixed(2) + ' DH';
+            document.getElementById('statistics-final-label').textContent = t('statistics_final');
+            document.getElementById('statistics-final-value').textContent = finalTotal.toFixed(2) + ' DH';
+
+            const chartWrapper = document.getElementById('chart-wrapper-el');
+            if (Object.keys(categoryTotals).length > 0) {
+                chartWrapper.classList.remove('hidden');
+                if (window.budgetChartInstance) window.budgetChartInstance.destroy();
+                window.budgetChartInstance = new Chart(document.getElementById('budgetChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(categoryTotals),
+                        datasets: [{
+                            data: Object.values(categoryTotals),
+                            backgroundColor: ['#3498DB', '#2ECC71', '#F1C40F', '#E74C3C', '#9B59B6', '#34495E', '#1ABC9C'],
+                            borderWidth: 2,
+                            borderColor: isDarkMode ? '#1E1E1E' : '#FFFFFF'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { color: isDarkMode ? '#E0E0E0' : '#333333' } },
+                            title: { display: true, text: t('chart_title'), color: isDarkMode ? '#E0E0E0' : '#333333', font: { size: 16 } }
+                        }
+                    }
+                });
+            } else {
+                chartWrapper.classList.add('hidden');
+                if (window.budgetChartInstance) {
+                    window.budgetChartInstance.destroy();
+                    window.budgetChartInstance = null;
+                }
+            }
+        };
+
         const renderSummary = () => {
             const table = document.getElementById('summary-table');
             const chartWrapper = document.getElementById('chart-wrapper-el');
@@ -2491,33 +2609,7 @@ const sizeDropdownHTML = showSizeDropdown ? `
             tfoot += '</tr>';
             table.innerHTML += tfoot;
 
-            // Rendu du Graphique (Chart.js)
-            if (hasData) {
-                chartWrapper.classList.remove('hidden');
-                if(window.budgetChartInstance) window.budgetChartInstance.destroy();
-                const ctx = document.getElementById('budgetChart');
-                window.budgetChartInstance = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: Object.keys(catTotals),
-                        datasets: [{
-                            data: Object.values(catTotals),
-                            backgroundColor: ['#3498DB', '#2ECC71', '#F1C40F', '#E74C3C', '#9B59B6', '#34495E', '#1ABC9C'],
-                            borderWidth: 2,
-                            borderColor: isDarkMode ? '#1E1E1E' : '#FFFFFF'
-                        }]
-                    },
-                    options: { 
-                        responsive: true,
-                        plugins: { 
-                            legend: { position: 'bottom', labels: { color: isDarkMode ? '#E0E0E0' : '#333333' } },
-                            title: { display: true, text: t('chart_title'), color: isDarkMode ? '#E0E0E0' : '#333333', font: {size: 16} }
-                        } 
-                    }
-                });
-            } else {
-                chartWrapper.classList.add('hidden');
-            }
+            // Chart.js rendering now lives in the dedicated Statistics tab.
         };
 
 
@@ -2665,14 +2757,16 @@ const sizeDropdownHTML = showSizeDropdown ? `
             const mainContent = document.getElementById('main-content');
             const summaryContent = document.getElementById('summary-content');
             const finalContent = document.getElementById('final-list-content');
+            const statisticsContent = document.getElementById('statistics-content');
             const footer = document.getElementById('total-footer');
             const searchWrap = document.getElementById('search-wrapper');
             const filtersWrap = document.getElementById('filters-wrapper');
 
             const isSummary = activeTabId === 'summary';
             const isFinalList = activeTabId === 'final-list';
+            const isStatistics = activeTabId === 'statistics';
 
-            if (isSummary || isFinalList) {
+            if (isSummary || isFinalList || isStatistics) {
                 document.body.classList.add('is-summary');
 
                 mainContent.classList.add('hidden');
@@ -2681,6 +2775,7 @@ const sizeDropdownHTML = showSizeDropdown ? `
 
                 summaryContent.classList.toggle('hidden', !isSummary);
                 finalContent.classList.toggle('hidden', !isFinalList);
+                statisticsContent.classList.toggle('hidden', !isStatistics);
 
                 if (footer) footer.classList.add('hidden');
 
@@ -2693,6 +2788,10 @@ const sizeDropdownHTML = showSizeDropdown ? `
                 if (isFinalList) {
                     renderFinalList();
                 }
+
+                if (isStatistics) {
+                    renderStatistics();
+                }
             } else {
                 document.body.classList.remove('is-summary');
                 document.body.classList.remove('final-list-print');
@@ -2703,6 +2802,7 @@ const sizeDropdownHTML = showSizeDropdown ? `
 
                 summaryContent.classList.add('hidden');
                 finalContent.classList.add('hidden');
+                statisticsContent.classList.add('hidden');
 
                 if (footer) footer.classList.remove('hidden');
 
@@ -2944,7 +3044,7 @@ const sizeDropdownHTML = showSizeDropdown ? `
 
 
                     const calculateTotal = () => {
-            if (activeTabId === 'summary' || activeTabId === 'final-list') {
+            if (activeTabId === 'summary' || activeTabId === 'final-list' || activeTabId === 'statistics') {
                 return;
             }
 
